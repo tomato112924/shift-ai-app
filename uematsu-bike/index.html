@@ -350,6 +350,7 @@
   var OWNER = '植松';
   var REPO_API = 'https://api.github.com/repos/tomato112924/shift-ai-app/contents/data/cards.json';
   var BRANCH = 'main';
+  var RAW_URL = 'https://raw.githubusercontent.com/tomato112924/shift-ai-app/' + BRANCH + '/data/cards.json';
   var LS_STORE = 'uematsu-bike-cards';
   var LS_MODE = 'ub-mode';
   var LS_RIDER = 'ub-rider-name';
@@ -763,11 +764,23 @@
   $('owner-back').addEventListener('click', function () { show('select'); });
 
   // ---------- rider ----------
+  // 認証なしでもレート制限のないCDN(raw)を優先し、だめならAPIに切り替える
+  function fetchShared() {
+    return fetch(RAW_URL + '?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .catch(function () {
+        return ghFetchData(false).then(function (r) { return r.data; });
+      })
+      .then(function (data) { return normalizeStore(data); });
+  }
   function riderFetch(force) {
     var now = Date.now();
     if (!force && now - lastRiderFetch < 30000) return Promise.resolve(null);
     lastRiderFetch = now;
-    return ghFetchData(false).then(function (r) { return normalizeStore(r.data); });
+    return fetchShared();
   }
   function riderRefresh(force) {
     rStatus('warn', '更新中…');
@@ -802,9 +815,8 @@
     setStatus($('rider-login-dot'), $('rider-login-text'), 'warn', '読み込み中…');
     var list = $('rider-names');
     list.textContent = '';
-    ghFetchData(false)
-      .then(function (r) {
-        var remote = normalizeStore(r.data);
+    fetchShared()
+      .then(function (remote) {
         var names = [];
         (remote ? remote.cards : []).forEach(function (c) {
           if (c.rider && names.indexOf(c.rider) === -1) names.push(c.rider);
