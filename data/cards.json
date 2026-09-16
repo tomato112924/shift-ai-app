@@ -1,13 +1,15 @@
 {
-  "updatedAt": "2026-09-16T17:55:38.914Z",
+  "updatedAt": "2026-09-16T17:56:14.614Z",
   "cards": [
     {
       "id": "c6r97nqwmmu4eijps",
       "rider": "けいごう",
       "memo": "",
-      "stamps": [],
+      "stamps": [
+        "2026-09-16T17:56:14.614Z"
+      ],
       "cycles": 0,
-      "updatedAt": "2026-09-16T17:55:38.914Z"
+      "updatedAt": "2026-09-16T17:56:14.614Z"
     }
   ]
 }
