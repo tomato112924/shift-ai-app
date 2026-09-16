@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-16T18:09:31.848Z",
+  "updatedAt": "2026-09-16T18:09:39.189Z",
   "cards": [
     {
       "id": "c6r97nqwmmu4eijps",
@@ -38,6 +38,14 @@
       "stamps": [],
       "cycles": 0,
       "updatedAt": "2026-09-16T18:09:31.848Z"
+    },
+    {
+      "id": "cyi45tetumu4f0ro9",
+      "rider": "そうた",
+      "memo": "",
+      "stamps": [],
+      "cycles": 0,
+      "updatedAt": "2026-09-16T18:09:39.189Z"
     }
   ]
 }
