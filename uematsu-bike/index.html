@@ -51,6 +51,18 @@
   .brand .tag { align-self: flex-start; border: 1px solid #6a6a6a; padding: 4px 8px 4px 13px; font-weight: 700; font-size: 10px; letter-spacing: 5px; color: #cfcfcf; }
   .head svg.moto { flex-shrink: 0; width: 108px; height: 70px; margin-top: 2px; }
 
+  /* card switcher */
+  .cards-head { font-family: var(--font-label); font-weight: 600; font-size: 12px; letter-spacing: 2px; color: #9a9a9a; margin-bottom: 8px; }
+  .cards-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+  button.chip {
+    flex-shrink: 0; background: none; border: 1px solid var(--line); color: var(--muted);
+    font-family: var(--font-body); font-weight: 700; font-size: 13px; letter-spacing: 1px;
+    padding: 9px 15px; cursor: pointer; min-height: 42px; white-space: nowrap; border-radius: 0;
+  }
+  button.chip.active { border-color: var(--ink); color: var(--ground); background: var(--ink); }
+  button.chip.add { border-style: dashed; color: #9a9a9a; }
+  .chip .pts-mini { font-family: var(--font-label); font-size: 11px; opacity: 0.75; margin-left: 6px; }
+
   /* counter */
   .counter { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); padding: 8px 2px; }
   .counter .pts { font-family: var(--font-label); font-weight: 700; font-size: 15px; letter-spacing: 2px; color: var(--silver); }
@@ -87,7 +99,7 @@
   button.slot.just .mark { animation: stampin 0.25s ease-out; }
   @media (prefers-reduced-motion: reduce) { button.slot.just .mark { animation: none; } }
 
-  .actions { display: flex; justify-content: flex-end; }
+  .actions { display: flex; justify-content: space-between; align-items: center; }
   .btn {
     background: none; border: 1px solid var(--line); color: var(--muted);
     font-family: var(--font-body); font-size: 12px; letter-spacing: 1px;
@@ -96,6 +108,8 @@
   .btn:hover { color: var(--ink); border-color: #6a6a6a; }
   .btn:disabled { opacity: 0.35; cursor: default; }
   .btn.primary { border-color: var(--silver); color: var(--ink); font-weight: 700; }
+  .btn.ghost { border-color: var(--line-soft); color: #5f5f5f; }
+  .btn.ghost:hover { color: var(--bad); border-color: var(--bad); }
 
   /* reward */
   .reward { background: var(--paper); color: var(--paper-ink); padding: 16px; display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center; }
@@ -124,7 +138,7 @@
     border-radius: 0;
   }
   .row input:focus, .memo textarea:focus, .join-row input:focus { outline: none; border-bottom-color: var(--ink); }
-  .row .ro { flex-grow: 1; border-bottom: 2px solid #3d3d3d; color: var(--muted); font-size: 14px; padding: 6px 2px; font-variant-numeric: tabular-nums; }
+  .row .ro { flex-grow: 1; border-bottom: 2px solid #3d3d3d; color: var(--ink); font-size: 16px; font-weight: 700; letter-spacing: 2px; padding: 6px 2px; }
   .memo { display: flex; flex-direction: column; gap: 6px; }
   .memo textarea { resize: vertical; min-height: 52px; line-height: 1.6; }
 
@@ -184,6 +198,11 @@
       </svg>
     </div>
 
+    <div>
+      <div class="cards-head">カード（ライダーごと）</div>
+      <div class="cards-row" id="cards-row"></div>
+    </div>
+
     <div class="counter">
       <div class="pts">ポイント <b id="pt-now">0</b> / 10</div>
       <div class="cycles" id="cycles-label">完走 0回</div>
@@ -192,6 +211,7 @@
     <div class="grid" id="grid"></div>
 
     <div class="actions">
+      <button type="button" class="btn ghost" id="delete-btn">このカードを削除</button>
       <button type="button" class="btn" id="undo-btn" disabled>1つ戻す</button>
     </div>
 
@@ -208,16 +228,12 @@
 
     <div class="info">
       <div class="row">
-        <label for="owner-input">オーナー</label>
-        <input id="owner-input" type="text" autocomplete="off" placeholder="貸す人">
+        <span class="memo-label">オーナー</span>
+        <span class="ro">植松</span>
       </div>
       <div class="row">
-        <label for="borrower-input">ライダー</label>
-        <input id="borrower-input" type="text" autocomplete="off" placeholder="借りる人">
-      </div>
-      <div class="row">
-        <span class="memo-label">スタート日</span>
-        <span class="ro" id="start-date">—</span>
+        <label for="rider-input">ライダー</label>
+        <input id="rider-input" type="text" autocomplete="off" placeholder="借りる人の名前">
       </div>
       <div class="memo">
         <label class="memo-label" for="memo-input">メモ</label>
@@ -226,11 +242,11 @@
     </div>
 
     <div class="sync">
-      <div class="sync-head">ともだち同期</div>
+      <div class="sync-head">ともだち同期（このカード）</div>
       <div class="sync-status"><span class="dot" id="sync-dot"></span><span id="sync-text">未接続（この端末のみに保存）</span></div>
       <div id="sync-off">
         <div class="sync-actions" style="margin-bottom: 10px;">
-          <button type="button" class="btn primary" id="share-create">共有カードを作成</button>
+          <button type="button" class="btn primary" id="share-create">共有リンクを作成</button>
         </div>
         <div class="join-row">
           <input id="join-input" type="text" autocomplete="off" placeholder="共有リンクを貼り付けて参加">
@@ -244,7 +260,7 @@
           <button type="button" class="btn" id="leave-btn">解除</button>
         </div>
       </div>
-      <div class="sync-note">共有カードを作ってリンクを相手に送ると、2人のスマホで同じカードが見られます。リンクを知っている人は誰でも見られるので、名前はニックネームがおすすめ。</div>
+      <div class="sync-note">カードごとに共有リンクを作って、そのライダーに送ってください。どちらがスタンプを押しても両方のスマホに反映されます。リンクを知っている人は誰でも見られるので、名前はニックネームがおすすめ。</div>
     </div>
 
     <div class="foot">NO POINT, NO SMOKE</div>
@@ -256,29 +272,30 @@
   'use strict';
 
   var TOTAL = 10;
+  var OWNER = '植松';
   var SYNC_API = 'https://jsonblob.com/api/jsonBlob';
-  var LS_STATE = 'uematsu-bike-card';
-  var LS_SYNC = 'uematsu-bike-sync-id';
+  var LS_STORE = 'uematsu-bike-cards';
+  var LS_OLD_STATE = 'uematsu-bike-card';
+  var LS_OLD_SYNC = 'uematsu-bike-sync-id';
   var POLL_MS = 8000;
 
-  var state = { v: 0, updatedAt: '', stamps: [], owner: '', borrower: '', memo: '', cycles: 0 };
-  var syncId = null;
+  var store = { cards: [], activeId: null };
   var justStamped = -1;
   var pushTimer = null;
   var pollTimer = null;
   var fieldTimer = null;
   var pulling = false;
 
+  var cardsRow = document.getElementById('cards-row');
   var grid = document.getElementById('grid');
   var ptNow = document.getElementById('pt-now');
   var cyclesLabel = document.getElementById('cycles-label');
   var undoBtn = document.getElementById('undo-btn');
+  var deleteBtn = document.getElementById('delete-btn');
   var reward = document.getElementById('reward');
   var redeemBtn = document.getElementById('redeem-btn');
-  var ownerInput = document.getElementById('owner-input');
-  var borrowerInput = document.getElementById('borrower-input');
+  var riderInput = document.getElementById('rider-input');
   var memoInput = document.getElementById('memo-input');
-  var startDate = document.getElementById('start-date');
   var syncDot = document.getElementById('sync-dot');
   var syncText = document.getElementById('sync-text');
   var syncOff = document.getElementById('sync-off');
@@ -296,6 +313,88 @@
     + '<path d="M20 6 L20 15"></path><path d="M20 25 L20 34"></path>'
     + '<path d="M6 20 L15 20"></path><path d="M25 20 L34 20"></path>'
     + '</svg>';
+
+  // ---------- cards model ----------
+  function uid() { return 'c' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
+  function newCard() {
+    return { id: uid(), rider: '', memo: '', stamps: [], cycles: 0, v: 0, updatedAt: '', syncId: null };
+  }
+  function active() {
+    for (var i = 0; i < store.cards.length; i++) {
+      if (store.cards[i].id === store.activeId) return store.cards[i];
+    }
+    if (!store.cards.length) store.cards.push(newCard());
+    store.activeId = store.cards[0].id;
+    return store.cards[0];
+  }
+  function cardLabel(c) { return c.rider || '名前なし'; }
+
+  function normalizeCard(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    var s = Array.isArray(raw.stamps) ? raw.stamps.filter(function (x) { return typeof x === 'string'; }).slice(0, TOTAL) : [];
+    var rider = typeof raw.rider === 'string' ? raw.rider : (typeof raw.borrower === 'string' ? raw.borrower : '');
+    return {
+      id: typeof raw.id === 'string' ? raw.id : uid(),
+      rider: rider.slice(0, 60),
+      memo: typeof raw.memo === 'string' ? raw.memo.slice(0, 500) : '',
+      stamps: s,
+      cycles: typeof raw.cycles === 'number' && raw.cycles >= 0 ? Math.floor(raw.cycles) : 0,
+      v: typeof raw.v === 'number' && raw.v >= 0 ? Math.floor(raw.v) : 0,
+      updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : '',
+      syncId: typeof raw.syncId === 'string' && raw.syncId ? raw.syncId : null
+    };
+  }
+
+  // ---------- persistence ----------
+  function saveLocal() {
+    try { localStorage.setItem(LS_STORE, JSON.stringify(store)); } catch (e) { /* private mode */ }
+  }
+  function loadLocal() {
+    try {
+      var raw = JSON.parse(localStorage.getItem(LS_STORE));
+      if (raw && Array.isArray(raw.cards)) {
+        var cards = raw.cards.map(normalizeCard).filter(Boolean);
+        if (cards.length) {
+          store.cards = cards;
+          store.activeId = typeof raw.activeId === 'string' ? raw.activeId : cards[0].id;
+          return;
+        }
+      }
+    } catch (e) { /* ignore */ }
+    // 旧バージョン（1枚だけ）からの引き継ぎ
+    try {
+      var old = normalizeCard(JSON.parse(localStorage.getItem(LS_OLD_STATE)));
+      if (old) {
+        try { old.syncId = localStorage.getItem(LS_OLD_SYNC) || null; } catch (e2) { /* ignore */ }
+        store.cards = [old];
+        store.activeId = old.id;
+        saveLocal();
+        return;
+      }
+    } catch (e) { /* ignore */ }
+    store.cards = [newCard()];
+    store.activeId = store.cards[0].id;
+  }
+
+  function commit() {
+    var c = active();
+    c.v += 1;
+    c.updatedAt = new Date().toISOString();
+    render();
+    saveLocal();
+    schedulePush();
+  }
+
+  // ---------- date helpers ----------
+  function fmtDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return (d.getMonth() + 1) + '/' + d.getDate();
+  }
+  function fmtTime(d) {
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return p(d.getHours()) + ':' + p(d.getMinutes());
+  }
 
   // ---------- stamp slots ----------
   var slots = [];
@@ -315,48 +414,47 @@
     slots.push(b);
   }
 
-  function fmtDate(iso) {
-    var d = new Date(iso);
-    if (isNaN(d.getTime())) return '';
-    return (d.getMonth() + 1) + '/' + d.getDate();
-  }
-  function fmtFull(iso) {
-    var d = new Date(iso);
-    if (isNaN(d.getTime())) return '—';
-    return d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
-  }
-  function fmtTime(d) {
-    function p(n) { return (n < 10 ? '0' : '') + n; }
-    return p(d.getHours()) + ':' + p(d.getMinutes());
-  }
-
-  function normalize(raw) {
-    if (!raw || typeof raw !== 'object') return null;
-    var s = Array.isArray(raw.stamps) ? raw.stamps.filter(function (x) { return typeof x === 'string'; }).slice(0, TOTAL) : [];
-    return {
-      v: typeof raw.v === 'number' && raw.v >= 0 ? Math.floor(raw.v) : 0,
-      updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : '',
-      stamps: s,
-      owner: typeof raw.owner === 'string' ? raw.owner.slice(0, 60) : '',
-      borrower: typeof raw.borrower === 'string' ? raw.borrower.slice(0, 60) : '',
-      memo: typeof raw.memo === 'string' ? raw.memo.slice(0, 500) : '',
-      cycles: typeof raw.cycles === 'number' && raw.cycles >= 0 ? Math.floor(raw.cycles) : 0
-    };
+  // ---------- render ----------
+  function renderChips() {
+    cardsRow.textContent = '';
+    store.cards.forEach(function (c) {
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip' + (c.id === store.activeId ? ' active' : '');
+      chip.innerHTML = '';
+      chip.appendChild(document.createTextNode(cardLabel(c)));
+      var mini = document.createElement('span');
+      mini.className = 'pts-mini';
+      mini.textContent = c.stamps.length + '/' + TOTAL;
+      chip.appendChild(mini);
+      chip.setAttribute('aria-label', cardLabel(c) + ' のカード（' + c.stamps.length + '/' + TOTAL + 'ポイント）');
+      chip.addEventListener('click', function () { switchCard(c.id); });
+      cardsRow.appendChild(chip);
+    });
+    var add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'chip add';
+    add.textContent = '＋ 追加';
+    add.setAttribute('aria-label', '新しいカードを追加');
+    add.addEventListener('click', addCard);
+    cardsRow.appendChild(add);
   }
 
   function render() {
-    var n = state.stamps.length;
+    var c = active();
+    renderChips();
+    var n = c.stamps.length;
     ptNow.textContent = String(n);
-    cyclesLabel.textContent = '完走 ' + state.cycles + '回';
+    cyclesLabel.textContent = '完走 ' + c.cycles + '回';
     for (var i = 0; i < TOTAL; i++) {
       var el = slots[i];
       var stamped = i < n;
       el.classList.toggle('stamped', stamped);
       el.classList.toggle('next', !stamped && i === n && n < TOTAL);
       el.classList.toggle('just', i === justStamped);
-      el.querySelector('.mark .d').textContent = stamped ? fmtDate(state.stamps[i]) : '';
+      el.querySelector('.mark .d').textContent = stamped ? fmtDate(c.stamps[i]) : '';
       if (stamped) {
-        el.setAttribute('aria-label', 'スタンプ ' + (i + 1) + '（' + fmtDate(state.stamps[i]) + ' 済）');
+        el.setAttribute('aria-label', 'スタンプ ' + (i + 1) + '（' + fmtDate(c.stamps[i]) + ' 済）');
       } else {
         el.setAttribute('aria-label', 'スタンプ ' + (i + 1) + (i === n ? '（タップで押す）' : ''));
       }
@@ -364,65 +462,67 @@
     justStamped = -1;
     undoBtn.disabled = n === 0;
     reward.hidden = n < TOTAL;
-    startDate.textContent = n > 0 ? fmtFull(state.stamps[0]) : '—';
-    if (document.activeElement !== ownerInput) ownerInput.value = state.owner;
-    if (document.activeElement !== borrowerInput) borrowerInput.value = state.borrower;
-    if (document.activeElement !== memoInput) memoInput.value = state.memo;
+    if (document.activeElement !== riderInput) riderInput.value = c.rider;
+    if (document.activeElement !== memoInput) memoInput.value = c.memo;
+    updateSyncUI();
   }
 
-  // ---------- persistence ----------
-  function saveLocal() {
-    try { localStorage.setItem(LS_STATE, JSON.stringify(state)); } catch (e) { /* private mode */ }
-  }
-  function loadLocal() {
-    try {
-      var s = normalize(JSON.parse(localStorage.getItem(LS_STATE)));
-      if (s) state = s;
-    } catch (e) { /* ignore */ }
-    try { syncId = localStorage.getItem(LS_SYNC) || null; } catch (e) { /* ignore */ }
-  }
-  function saveSyncId() {
-    try {
-      if (syncId) localStorage.setItem(LS_SYNC, syncId);
-      else localStorage.removeItem(LS_SYNC);
-    } catch (e) { /* ignore */ }
-  }
-
-  function commit() {
-    state.v += 1;
-    state.updatedAt = new Date().toISOString();
-    render();
+  // ---------- card switching ----------
+  function switchCard(id) {
+    if (store.activeId === id) return;
+    store.activeId = id;
     saveLocal();
-    schedulePush();
+    render();
+    var c = active();
+    if (c.syncId) { setStatus('warn', '同期中…'); pullRemote(); }
   }
+  function addCard() {
+    var c = newCard();
+    store.cards.push(c);
+    store.activeId = c.id;
+    saveLocal();
+    render();
+    riderInput.focus();
+  }
+  deleteBtn.addEventListener('click', function () {
+    var c = active();
+    if (!window.confirm('「' + cardLabel(c) + '」のカードを削除しますか？（相手側のカードは残ります）')) return;
+    store.cards = store.cards.filter(function (x) { return x.id !== c.id; });
+    if (!store.cards.length) store.cards.push(newCard());
+    store.activeId = store.cards[0].id;
+    saveLocal();
+    render();
+  });
 
   // ---------- interactions ----------
   function onSlotTap(idx) {
-    var n = state.stamps.length;
+    var c = active();
+    var n = c.stamps.length;
     if (idx !== n || n >= TOTAL) return;
-    state.stamps = state.stamps.concat([new Date().toISOString()]);
+    c.stamps = c.stamps.concat([new Date().toISOString()]);
     justStamped = idx;
     commit();
   }
   undoBtn.addEventListener('click', function () {
-    if (state.stamps.length === 0) return;
-    state.stamps = state.stamps.slice(0, -1);
+    var c = active();
+    if (c.stamps.length === 0) return;
+    c.stamps = c.stamps.slice(0, -1);
     commit();
   });
   redeemBtn.addEventListener('click', function () {
-    state.cycles += 1;
-    state.stamps = [];
+    var c = active();
+    c.cycles += 1;
+    c.stamps = [];
     commit();
   });
   function onFieldInput() {
-    state.owner = ownerInput.value;
-    state.borrower = borrowerInput.value;
-    state.memo = memoInput.value;
+    var c = active();
+    c.rider = riderInput.value;
+    c.memo = memoInput.value;
     if (fieldTimer) clearTimeout(fieldTimer);
     fieldTimer = setTimeout(commit, 600);
   }
-  ownerInput.addEventListener('input', onFieldInput);
-  borrowerInput.addEventListener('input', onFieldInput);
+  riderInput.addEventListener('input', onFieldInput);
   memoInput.addEventListener('input', onFieldInput);
 
   // ---------- sync ----------
@@ -431,67 +531,74 @@
     syncText.textContent = text;
   }
   function updateSyncUI() {
-    var on = !!syncId;
+    var on = !!active().syncId;
     syncOff.hidden = on;
     syncOn.hidden = !on;
     if (!on) setStatus('', '未接続（この端末のみに保存）');
     if (on && !navigator.share) shareLinkBtn.hidden = true;
   }
-  function shareUrl() {
-    return location.origin + location.pathname + '#c=' + syncId;
+  function shareUrl(c) {
+    return location.origin + location.pathname + '#c=' + c.syncId;
   }
-  function docBody() {
+  function docBody(c) {
     return JSON.stringify({
-      schema: 1, v: state.v, updatedAt: state.updatedAt,
-      stamps: state.stamps, owner: state.owner, borrower: state.borrower,
-      memo: state.memo, cycles: state.cycles
+      schema: 2, v: c.v, updatedAt: c.updatedAt,
+      stamps: c.stamps, rider: c.rider, borrower: c.rider,
+      owner: OWNER, memo: c.memo, cycles: c.cycles
     });
   }
 
   function schedulePush() {
-    if (!syncId) return;
+    if (!active().syncId) return;
     if (pushTimer) clearTimeout(pushTimer);
     pushTimer = setTimeout(pushRemote, 500);
   }
 
   function pushRemote() {
-    if (!syncId) return;
+    var c = active();
+    if (!c.syncId) return;
     setStatus('warn', '同期中…');
-    fetch(SYNC_API + '/' + syncId, {
+    fetch(SYNC_API + '/' + c.syncId, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: docBody()
+      body: docBody(c)
     }).then(function (res) {
       if (res.status === 404) {
-        setStatus('bad', '共有カードが見つかりません（期限切れの可能性）。作成し直してください');
+        setStatus('bad', '共有リンクが見つかりません（期限切れの可能性）。作成し直してください');
         return;
       }
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      setStatus('ok', '同期OK ' + fmtTime(new Date()));
+      if (c.id === store.activeId) setStatus('ok', '同期OK ' + fmtTime(new Date()));
     }).catch(function () {
-      setStatus('bad', 'オフライン（この端末には保存済み・電波が戻れば自動同期）');
+      if (c.id === store.activeId) setStatus('bad', 'オフライン（この端末には保存済み・電波が戻れば自動同期）');
     });
   }
 
   function pullRemote() {
-    if (!syncId || pulling) return;
+    var c = active();
+    if (!c.syncId || pulling) return;
     pulling = true;
-    fetch(SYNC_API + '/' + syncId, { headers: { 'Accept': 'application/json' } })
+    fetch(SYNC_API + '/' + c.syncId, { headers: { 'Accept': 'application/json' } })
       .then(function (res) {
-        if (res.status === 404) { setStatus('bad', '共有カードが見つかりません（期限切れの可能性）'); return null; }
+        if (res.status === 404) { setStatus('bad', '共有リンクが見つかりません（期限切れの可能性）'); return null; }
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.json();
       })
       .then(function (raw) {
         if (!raw) return;
-        var remote = normalize(raw);
+        var remote = normalizeCard(raw);
         if (!remote) return;
-        if (remote.v > state.v || (remote.v === state.v && remote.updatedAt > state.updatedAt)) {
-          state = remote;
+        if (remote.v > c.v || (remote.v === c.v && remote.updatedAt > c.updatedAt)) {
+          c.rider = remote.rider;
+          c.memo = remote.memo;
+          c.stamps = remote.stamps;
+          c.cycles = remote.cycles;
+          c.v = remote.v;
+          c.updatedAt = remote.updatedAt;
           render();
           saveLocal();
           setStatus('ok', '同期OK ' + fmtTime(new Date()));
-        } else if (remote.v < state.v) {
+        } else if (remote.v < c.v) {
           pushRemote();
         } else {
           setStatus('ok', '同期OK ' + fmtTime(new Date()));
@@ -506,31 +613,31 @@
   function startPolling() {
     if (pollTimer) clearInterval(pollTimer);
     pollTimer = setInterval(function () {
-      if (document.visibilityState === 'visible') pullRemote();
+      if (document.visibilityState === 'visible' && active().syncId) pullRemote();
     }, POLL_MS);
   }
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible' && syncId) pullRemote();
+    if (document.visibilityState === 'visible' && active().syncId) pullRemote();
   });
-  window.addEventListener('focus', function () { if (syncId) pullRemote(); });
+  window.addEventListener('focus', function () { if (active().syncId) pullRemote(); });
 
   shareCreateBtn.addEventListener('click', function () {
+    var c = active();
     shareCreateBtn.disabled = true;
-    setStatus('warn', '共有カードを作成中…');
+    setStatus('warn', '共有リンクを作成中…');
     fetch(SYNC_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: docBody()
+      body: docBody(c)
     }).then(function (res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       var loc = res.headers.get('Location') || res.headers.get('location') || '';
       var id = (loc.split('/').pop() || '').trim();
       if (!id) throw new Error('no id');
-      syncId = id;
-      saveSyncId();
-      updateSyncUI();
-      setStatus('ok', '共有カードを作成しました。リンクを相手に送ってください');
-      startPolling();
+      c.syncId = id;
+      saveLocal();
+      render();
+      setStatus('ok', '共有リンクを作成しました。ライダーに送ってください');
     }).catch(function () {
       setStatus('bad', '同期サービスに接続できませんでした。電波状況を確認して再試行してください');
     }).then(function () { shareCreateBtn.disabled = false; });
@@ -545,7 +652,18 @@
     return /^[A-Za-z0-9-]{8,}$/.test(seg || '') ? seg : null;
   }
 
-  function join(id, silent) {
+  function join(id) {
+    // 既に同じリンクのカードを持っていたらそれに切り替え
+    for (var i = 0; i < store.cards.length; i++) {
+      if (store.cards[i].syncId === id) {
+        store.activeId = store.cards[i].id;
+        saveLocal();
+        render();
+        setStatus('warn', '同期中…');
+        pullRemote();
+        return;
+      }
+    }
     setStatus('warn', '参加中…');
     fetch(SYNC_API + '/' + id, { headers: { 'Accept': 'application/json' } })
       .then(function (res) {
@@ -553,35 +671,49 @@
         return res.json();
       })
       .then(function (raw) {
-        var remote = normalize(raw);
+        var remote = normalizeCard(raw);
         if (!remote) throw new Error('bad doc');
-        syncId = id;
-        saveSyncId();
-        state = remote; // 参加時は共有カード側を正とする
-        render();
+        var c = newCard();
+        c.rider = remote.rider;
+        c.memo = remote.memo;
+        c.stamps = remote.stamps;
+        c.cycles = remote.cycles;
+        c.v = remote.v;
+        c.updatedAt = remote.updatedAt;
+        c.syncId = id;
+        // 未使用の空カードが1枚だけなら置き換える
+        if (store.cards.length === 1 && !store.cards[0].syncId && store.cards[0].stamps.length === 0 && !store.cards[0].rider) {
+          store.cards = [c];
+        } else {
+          store.cards.push(c);
+        }
+        store.activeId = c.id;
         saveLocal();
-        updateSyncUI();
+        render();
         setStatus('ok', '共有カードに参加しました');
-        startPolling();
       })
       .catch(function () {
-        if (!silent) setStatus('bad', '参加できませんでした。リンクを確認してください');
+        setStatus('bad', '参加できませんでした。リンクを確認してください');
       });
   }
 
   joinBtn.addEventListener('click', function () {
     var id = extractId(joinInput.value);
     if (!id) { setStatus('bad', 'リンクまたはコードが読み取れませんでした'); return; }
-    join(id, false);
+    joinInput.value = '';
+    join(id);
   });
 
   shareLinkBtn.addEventListener('click', function () {
-    if (navigator.share) {
-      navigator.share({ title: 'UEMATSU BIKE POINT CARD', text: '原付レンタルポイントカードを一緒に使おう', url: shareUrl() }).catch(function () { /* cancelled */ });
+    var c = active();
+    if (navigator.share && c.syncId) {
+      navigator.share({ title: 'UEMATSU BIKE POINT CARD', text: '原付レンタルポイントカードを一緒に使おう', url: shareUrl(c) }).catch(function () { /* cancelled */ });
     }
   });
   copyLinkBtn.addEventListener('click', function () {
-    var url = shareUrl();
+    var c = active();
+    if (!c.syncId) return;
+    var url = shareUrl(c);
     var done = function () {
       var t = copyLinkBtn.textContent;
       copyLinkBtn.textContent = 'コピーしました';
@@ -594,24 +726,22 @@
     }
   });
   leaveBtn.addEventListener('click', function () {
-    syncId = null;
-    saveSyncId();
-    if (pollTimer) clearInterval(pollTimer);
-    updateSyncUI();
+    active().syncId = null;
+    saveLocal();
+    render();
   });
 
   // ---------- boot ----------
   loadLocal();
   render();
-  updateSyncUI();
+  startPolling();
 
   var hashId = extractId(location.hash);
-  if (hashId && hashId !== syncId) {
-    join(hashId, false);
-  } else if (syncId) {
+  if (hashId) {
+    join(hashId);
+  } else if (active().syncId) {
     setStatus('warn', '同期中…');
     pullRemote();
-    startPolling();
   }
 })();
 </script>
