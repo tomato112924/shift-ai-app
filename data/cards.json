@@ -1,35 +1,13 @@
 {
-  "updatedAt": "2026-09-16T18:09:41.134Z",
+  "updatedAt": "2026-09-16T18:09:58.918Z",
   "cards": [
-    {
-      "id": "c6r97nqwmmu4eijps",
-      "rider": "けいごう",
-      "memo": "",
-      "stamps": [
-        "2026-09-16T17:56:14.614Z",
-        "2026-09-16T17:56:18.728Z",
-        "2026-09-16T17:56:19.025Z",
-        "2026-09-16T17:56:19.658Z",
-        "2026-09-16T17:56:20.007Z"
-      ],
-      "cycles": 0,
-      "updatedAt": "2026-09-16T18:06:06.564Z"
-    },
-    {
-      "id": "crlqcvmfzmu4ekf56",
-      "rider": "かとう",
-      "memo": "",
-      "stamps": [],
-      "cycles": 1,
-      "updatedAt": "2026-09-16T18:01:12.197Z"
-    },
     {
       "id": "cxod27ifbmu4f0cic",
       "rider": "しぶや",
       "memo": "",
       "stamps": [],
       "cycles": 0,
-      "updatedAt": "2026-09-16T18:09:19.740Z"
+      "updatedAt": "2026-09-16T18:09:58.918Z"
     },
     {
       "id": "cp88alk8dmu4f0m1s",
