@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-16T18:05:21.419Z",
+  "updatedAt": "2026-09-16T18:06:06.564Z",
   "cards": [
     {
       "id": "c6r97nqwmmu4eijps",
@@ -13,7 +13,7 @@
         "2026-09-16T17:56:20.007Z"
       ],
       "cycles": 0,
-      "updatedAt": "2026-09-16T17:56:20.007Z"
+      "updatedAt": "2026-09-16T18:06:06.564Z"
     },
     {
       "id": "crlqcvmfzmu4ekf56",
@@ -22,14 +22,6 @@
       "stamps": [],
       "cycles": 1,
       "updatedAt": "2026-09-16T18:01:12.197Z"
-    },
-    {
-      "id": "cuaxqhu25mu4ev4mw",
-      "rider": "睦",
-      "memo": "",
-      "stamps": [],
-      "cycles": 0,
-      "updatedAt": "2026-09-16T18:05:21.419Z"
     }
   ]
 }
