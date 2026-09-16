@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0e0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="UEMATSU BIKE">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%9B%B5%3C/text%3E%3C/svg%3E">
+<title>UEMATSU BIKE POINT CARD</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@500;600;700&family=Noto+Sans+JP:wght@500;700&display=swap">
+<style>
+  [hidden] { display: none !important; }
+  * { box-sizing: border-box; }
+  :root {
+    --ground: #0e0e0e;
+    --panel: #161616;
+    --line: #3a3a3a;
+    --line-soft: #2a2a2a;
+    --ink: #f2f2f2;
+    --silver: #b8b8b8;
+    --muted: #7d7d7d;
+    --dim: #4b4b4b;
+    --paper: #f2f2f2;
+    --paper-ink: #111111;
+    --ok: #8fbf8f;
+    --warn: #e8c15a;
+    --bad: #d98157;
+    --font-display: 'Bebas Neue', 'Oswald', sans-serif;
+    --font-label: 'Oswald', 'Noto Sans JP', sans-serif;
+    --font-body: 'Noto Sans JP', sans-serif;
+  }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    margin: 0;
+    padding-inline: calc(16px + env(safe-area-inset-left, 0px)) calc(16px + env(safe-area-inset-right, 0px));
+    padding-block: calc(20px + env(safe-area-inset-top, 0px)) calc(40px + env(safe-area-inset-bottom, 0px));
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+  .frame { border: 1px solid var(--line); padding: 20px 18px; display: flex; flex-direction: column; gap: 18px; }
+
+  /* header */
+  .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .brand { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+  .brand .name { font-family: var(--font-display); font-size: clamp(38px, 11vw, 56px); line-height: 0.9; letter-spacing: 2px; color: var(--ink); }
+  .brand .sub { font-family: var(--font-display); font-size: clamp(17px, 5vw, 22px); line-height: 1; letter-spacing: 8px; color: var(--silver); }
+  .brand .tag { align-self: flex-start; border: 1px solid #6a6a6a; padding: 4px 8px 4px 13px; font-weight: 700; font-size: 10px; letter-spacing: 5px; color: #cfcfcf; }
+  .head svg.moto { flex-shrink: 0; width: 108px; height: 70px; margin-top: 2px; }
+
+  /* counter */
+  .counter { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); padding: 8px 2px; }
+  .counter .pts { font-family: var(--font-label); font-weight: 700; font-size: 15px; letter-spacing: 2px; color: var(--silver); }
+  .counter .pts b { font-size: 26px; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .counter .cycles { font-size: 11px; letter-spacing: 1px; color: var(--muted); }
+
+  /* stamps */
+  .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  button.slot {
+    position: relative; aspect-ratio: 1; width: 100%;
+    background: none; border: 2px dashed var(--dim); border-radius: 50%;
+    color: var(--muted); font-family: var(--font-label); font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; padding: 0; min-height: 44px;
+    transition: border-color 0.15s, transform 0.1s;
+  }
+  button.slot .num { font-size: 20px; }
+  button.slot.next { border-color: #8a8a8a; color: #c9c9c9; }
+  button.slot.next:active { transform: scale(0.93); }
+  button.slot.stamped { border: 2px solid var(--line); cursor: default; }
+  button.slot.stamped .num { display: none; }
+  button.slot .mark { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; flex-direction: column; gap: 1px; }
+  button.slot.stamped .mark { display: flex; }
+  .mark svg { width: 55%; height: 55%; }
+  .mark .d { font-size: 9px; letter-spacing: 0.5px; color: var(--muted); font-family: var(--font-label); font-weight: 500; }
+  button.slot.last {
+    border: 3px solid var(--ink);
+    box-shadow: 0 0 0 3px var(--ground), 0 0 0 5px #5f5f5f;
+    color: var(--ink);
+  }
+  button.slot.last .bonus { position: absolute; bottom: 11%; font-size: 8px; letter-spacing: 1px; white-space: nowrap; color: var(--silver); font-family: var(--font-label); font-weight: 600; }
+  button.slot.last.stamped .bonus { display: none; }
+  @keyframes stampin { from { transform: scale(1.6) rotate(-18deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
+  button.slot.just .mark { animation: stampin 0.25s ease-out; }
+  @media (prefers-reduced-motion: reduce) { button.slot.just .mark { animation: none; } }
+
+  .actions { display: flex; justify-content: flex-end; }
+  .btn {
+    background: none; border: 1px solid var(--line); color: var(--muted);
+    font-family: var(--font-body); font-size: 12px; letter-spacing: 1px;
+    padding: 8px 14px; cursor: pointer; min-height: 40px; border-radius: 0;
+  }
+  .btn:hover { color: var(--ink); border-color: #6a6a6a; }
+  .btn:disabled { opacity: 0.35; cursor: default; }
+  .btn.primary { border-color: var(--silver); color: var(--ink); font-weight: 700; }
+
+  /* reward */
+  .reward { background: var(--paper); color: var(--paper-ink); padding: 16px; display: flex; flex-direction: column; gap: 10px; align-items: center; text-align: center; }
+  .reward .big { font-family: var(--font-label); font-weight: 700; font-size: 26px; line-height: 1.1; letter-spacing: 4px; }
+  .reward .jp { font-weight: 700; font-size: 14px; letter-spacing: 2px; }
+  .reward button {
+    background: var(--paper-ink); color: var(--paper); border: none;
+    font-family: var(--font-body); font-weight: 700; font-size: 13px; letter-spacing: 2px;
+    padding: 12px 20px; cursor: pointer; min-height: 44px;
+  }
+  @keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(242,242,242,0.5); } 50% { box-shadow: 0 0 0 8px rgba(242,242,242,0); } }
+  .reward { animation: glow 1.6s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .reward { animation: none; } }
+
+  /* rule strip */
+  .rules { background: var(--paper); color: var(--paper-ink); display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 13px; flex-wrap: wrap; }
+  .rules .en { font-family: var(--font-label); font-weight: 700; font-size: 13px; letter-spacing: 1px; }
+
+  /* info form */
+  .info { display: flex; flex-direction: column; gap: 15px; }
+  .row { display: flex; align-items: center; gap: 14px; }
+  .row label, .memo-label { width: 108px; flex-shrink: 0; font-family: var(--font-label); font-weight: 600; font-size: 13px; letter-spacing: 2px; color: #cfcfcf; }
+  .row input, .memo textarea {
+    flex-grow: 1; min-width: 0; background: none; border: none; border-bottom: 2px solid #595959;
+    color: var(--ink); font-family: var(--font-body); font-size: 16px; padding: 6px 2px;
+    border-radius: 0;
+  }
+  .row input:focus, .memo textarea:focus, .join-row input:focus { outline: none; border-bottom-color: var(--ink); }
+  .row .ro { flex-grow: 1; border-bottom: 2px solid #3d3d3d; color: var(--muted); font-size: 14px; padding: 6px 2px; font-variant-numeric: tabular-nums; }
+  .memo { display: flex; flex-direction: column; gap: 6px; }
+  .memo textarea { resize: vertical; min-height: 52px; line-height: 1.6; }
+
+  /* sync */
+  .sync { border: 1px solid var(--line-soft); padding: 14px 13px; display: flex; flex-direction: column; gap: 12px; }
+  .sync-head { font-family: var(--font-label); font-weight: 600; font-size: 13px; letter-spacing: 2px; color: #cfcfcf; }
+  .sync-status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .sync-status .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--dim); flex-shrink: 0; }
+  .sync-status .dot.ok { background: var(--ok); }
+  .sync-status .dot.warn { background: var(--warn); }
+  .sync-status .dot.bad { background: var(--bad); }
+  .sync-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .join-row { display: flex; gap: 8px; }
+  .join-row input {
+    flex-grow: 1; min-width: 0; background: none; border: none; border-bottom: 2px solid #595959;
+    color: var(--ink); font-family: var(--font-body); font-size: 16px; padding: 6px 2px; border-radius: 0;
+  }
+  .sync-note { font-size: 10.5px; color: #5a5a5a; line-height: 1.6; }
+
+  @media (max-width: 430px) {
+    body { padding-block: calc(12px + env(safe-area-inset-top, 0px)) calc(32px + env(safe-area-inset-bottom, 0px)); }
+    .wrap { gap: 14px; }
+    .frame { padding: 16px 13px; gap: 15px; }
+    .grid { gap: 8px; }
+    .head svg.moto { width: 84px; height: 56px; }
+    .row label, .memo-label { width: 88px; font-size: 12px; letter-spacing: 1px; }
+  }
+  .foot { display: flex; align-items: center; justify-content: center; gap: 14px; color: var(--muted); font-size: 10.5px; letter-spacing: 1.5px; }
+  .foot::before, .foot::after { content: ""; width: 44px; border-top: 1px solid var(--dim); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="frame">
+
+    <div class="head">
+      <div class="brand">
+        <div class="name">UEMATSU BIKE</div>
+        <div class="sub">POINT CARD</div>
+        <div class="tag">原付レンタルポイントカード</div>
+      </div>
+      <svg class="moto" viewBox="0 0 260 170" fill="none" stroke="#d9d9d9" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="56" cy="128" r="30"></circle>
+        <circle cx="56" cy="128" r="7" fill="#d9d9d9" stroke="none"></circle>
+        <circle cx="204" cy="128" r="30"></circle>
+        <circle cx="204" cy="128" r="7" fill="#d9d9d9" stroke="none"></circle>
+        <path d="M34 62 L96 62" stroke-width="16"></path>
+        <path d="M30 70 L30 84"></path>
+        <path d="M60 70 C64 92 84 102 112 106 L152 106"></path>
+        <path d="M152 106 C176 102 188 84 192 58"></path>
+        <path d="M190 66 L202 102"></path>
+        <path d="M178 56 L214 48"></path>
+        <path d="M206 48 L214 30"></path>
+        <circle cx="216" cy="26" r="5" fill="#d9d9d9" stroke="none"></circle>
+        <path d="M196 64 L211 68" stroke-width="9"></path>
+      </svg>
+    </div>
+
+    <div class="counter">
+      <div class="pts">ポイント <b id="pt-now">0</b> / 10</div>
+      <div class="cycles" id="cycles-label">完走 0回</div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="actions">
+      <button type="button" class="btn" id="undo-btn" disabled>1つ戻す</button>
+    </div>
+
+    <div class="reward" id="reward" hidden>
+      <div class="big">10ポイント達成!</div>
+      <div class="jp">たばこ1箱プレゼント</div>
+      <button type="button" id="redeem-btn">受け取った — カードをリセット</button>
+    </div>
+
+    <div class="rules">
+      <div class="en">レンタル1回 = 1ポイント</div>
+      <div class="en">10ポイント = たばこ1箱</div>
+    </div>
+
+    <div class="info">
+      <div class="row">
+        <label for="owner-input">オーナー</label>
+        <input id="owner-input" type="text" autocomplete="off" placeholder="貸す人">
+      </div>
+      <div class="row">
+        <label for="borrower-input">ライダー</label>
+        <input id="borrower-input" type="text" autocomplete="off" placeholder="借りる人">
+      </div>
+      <div class="row">
+        <span class="memo-label">スタート日</span>
+        <span class="ro" id="start-date">—</span>
+      </div>
+      <div class="memo">
+        <label class="memo-label" for="memo-input">メモ</label>
+        <textarea id="memo-input" rows="2" placeholder="ガソリン満タン返し etc."></textarea>
+      </div>
+    </div>
+
+    <div class="sync">
+      <div class="sync-head">ともだち同期</div>
+      <div class="sync-status"><span class="dot" id="sync-dot"></span><span id="sync-text">未接続（この端末のみに保存）</span></div>
+      <div id="sync-off">
+        <div class="sync-actions" style="margin-bottom: 10px;">
+          <button type="button" class="btn primary" id="share-create">共有カードを作成</button>
+        </div>
+        <div class="join-row">
+          <input id="join-input" type="text" autocomplete="off" placeholder="共有リンクを貼り付けて参加">
+          <button type="button" class="btn" id="join-btn">参加</button>
+        </div>
+      </div>
+      <div id="sync-on" hidden>
+        <div class="sync-actions">
+          <button type="button" class="btn primary" id="share-link-btn">リンクを共有</button>
+          <button type="button" class="btn" id="copy-link-btn">コピー</button>
+          <button type="button" class="btn" id="leave-btn">解除</button>
+        </div>
+      </div>
+      <div class="sync-note">共有カードを作ってリンクを相手に送ると、2人のスマホで同じカードが見られます。リンクを知っている人は誰でも見られるので、名前はニックネームがおすすめ。</div>
+    </div>
+
+    <div class="foot">NO POINT, NO SMOKE</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var TOTAL = 10;
+  var SYNC_API = 'https://jsonblob.com/api/jsonBlob';
+  var LS_STATE = 'uematsu-bike-card';
+  var LS_SYNC = 'uematsu-bike-sync-id';
+  var POLL_MS = 8000;
+
+  var state = { v: 0, updatedAt: '', stamps: [], owner: '', borrower: '', memo: '', cycles: 0 };
+  var syncId = null;
+  var justStamped = -1;
+  var pushTimer = null;
+  var pollTimer = null;
+  var fieldTimer = null;
+  var pulling = false;
+
+  var grid = document.getElementById('grid');
+  var ptNow = document.getElementById('pt-now');
+  var cyclesLabel = document.getElementById('cycles-label');
+  var undoBtn = document.getElementById('undo-btn');
+  var reward = document.getElementById('reward');
+  var redeemBtn = document.getElementById('redeem-btn');
+  var ownerInput = document.getElementById('owner-input');
+  var borrowerInput = document.getElementById('borrower-input');
+  var memoInput = document.getElementById('memo-input');
+  var startDate = document.getElementById('start-date');
+  var syncDot = document.getElementById('sync-dot');
+  var syncText = document.getElementById('sync-text');
+  var syncOff = document.getElementById('sync-off');
+  var syncOn = document.getElementById('sync-on');
+  var shareCreateBtn = document.getElementById('share-create');
+  var joinInput = document.getElementById('join-input');
+  var joinBtn = document.getElementById('join-btn');
+  var shareLinkBtn = document.getElementById('share-link-btn');
+  var copyLinkBtn = document.getElementById('copy-link-btn');
+  var leaveBtn = document.getElementById('leave-btn');
+
+  var WHEEL_SVG = '<svg viewBox="0 0 40 40" fill="none" stroke="#e8e8e8" stroke-width="3" stroke-linecap="round" aria-hidden="true">'
+    + '<circle cx="20" cy="20" r="16"></circle>'
+    + '<circle cx="20" cy="20" r="3" fill="#e8e8e8" stroke="none"></circle>'
+    + '<path d="M20 6 L20 15"></path><path d="M20 25 L20 34"></path>'
+    + '<path d="M6 20 L15 20"></path><path d="M25 20 L34 20"></path>'
+    + '</svg>';
+
+  // ---------- stamp slots ----------
+  var slots = [];
+  for (var i = 0; i < TOTAL; i++) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'slot' + (i === TOTAL - 1 ? ' last' : '');
+    b.id = 'slot-' + (i + 1);
+    b.setAttribute('aria-label', 'スタンプ ' + (i + 1));
+    b.innerHTML = '<span class="num">' + (i + 1) + '</span>'
+      + '<span class="mark">' + WHEEL_SVG + '<span class="d"></span></span>'
+      + (i === TOTAL - 1 ? '<span class="bonus">ボーナス</span>' : '');
+    (function (idx) {
+      b.addEventListener('click', function () { onSlotTap(idx); });
+    })(i);
+    grid.appendChild(b);
+    slots.push(b);
+  }
+
+  function fmtDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return (d.getMonth() + 1) + '/' + d.getDate();
+  }
+  function fmtFull(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '—';
+    return d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
+  }
+  function fmtTime(d) {
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  function normalize(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    var s = Array.isArray(raw.stamps) ? raw.stamps.filter(function (x) { return typeof x === 'string'; }).slice(0, TOTAL) : [];
+    return {
+      v: typeof raw.v === 'number' && raw.v >= 0 ? Math.floor(raw.v) : 0,
+      updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : '',
+      stamps: s,
+      owner: typeof raw.owner === 'string' ? raw.owner.slice(0, 60) : '',
+      borrower: typeof raw.borrower === 'string' ? raw.borrower.slice(0, 60) : '',
+      memo: typeof raw.memo === 'string' ? raw.memo.slice(0, 500) : '',
+      cycles: typeof raw.cycles === 'number' && raw.cycles >= 0 ? Math.floor(raw.cycles) : 0
+    };
+  }
+
+  function render() {
+    var n = state.stamps.length;
+    ptNow.textContent = String(n);
+    cyclesLabel.textContent = '完走 ' + state.cycles + '回';
+    for (var i = 0; i < TOTAL; i++) {
+      var el = slots[i];
+      var stamped = i < n;
+      el.classList.toggle('stamped', stamped);
+      el.classList.toggle('next', !stamped && i === n && n < TOTAL);
+      el.classList.toggle('just', i === justStamped);
+      el.querySelector('.mark .d').textContent = stamped ? fmtDate(state.stamps[i]) : '';
+      if (stamped) {
+        el.setAttribute('aria-label', 'スタンプ ' + (i + 1) + '（' + fmtDate(state.stamps[i]) + ' 済）');
+      } else {
+        el.setAttribute('aria-label', 'スタンプ ' + (i + 1) + (i === n ? '（タップで押す）' : ''));
+      }
+    }
+    justStamped = -1;
+    undoBtn.disabled = n === 0;
+    reward.hidden = n < TOTAL;
+    startDate.textContent = n > 0 ? fmtFull(state.stamps[0]) : '—';
+    if (document.activeElement !== ownerInput) ownerInput.value = state.owner;
+    if (document.activeElement !== borrowerInput) borrowerInput.value = state.borrower;
+    if (document.activeElement !== memoInput) memoInput.value = state.memo;
+  }
+
+  // ---------- persistence ----------
+  function saveLocal() {
+    try { localStorage.setItem(LS_STATE, JSON.stringify(state)); } catch (e) { /* private mode */ }
+  }
+  function loadLocal() {
+    try {
+      var s = normalize(JSON.parse(localStorage.getItem(LS_STATE)));
+      if (s) state = s;
+    } catch (e) { /* ignore */ }
+    try { syncId = localStorage.getItem(LS_SYNC) || null; } catch (e) { /* ignore */ }
+  }
+  function saveSyncId() {
+    try {
+      if (syncId) localStorage.setItem(LS_SYNC, syncId);
+      else localStorage.removeItem(LS_SYNC);
+    } catch (e) { /* ignore */ }
+  }
+
+  function commit() {
+    state.v += 1;
+    state.updatedAt = new Date().toISOString();
+    render();
+    saveLocal();
+    schedulePush();
+  }
+
+  // ---------- interactions ----------
+  function onSlotTap(idx) {
+    var n = state.stamps.length;
+    if (idx !== n || n >= TOTAL) return;
+    state.stamps = state.stamps.concat([new Date().toISOString()]);
+    justStamped = idx;
+    commit();
+  }
+  undoBtn.addEventListener('click', function () {
+    if (state.stamps.length === 0) return;
+    state.stamps = state.stamps.slice(0, -1);
+    commit();
+  });
+  redeemBtn.addEventListener('click', function () {
+    state.cycles += 1;
+    state.stamps = [];
+    commit();
+  });
+  function onFieldInput() {
+    state.owner = ownerInput.value;
+    state.borrower = borrowerInput.value;
+    state.memo = memoInput.value;
+    if (fieldTimer) clearTimeout(fieldTimer);
+    fieldTimer = setTimeout(commit, 600);
+  }
+  ownerInput.addEventListener('input', onFieldInput);
+  borrowerInput.addEventListener('input', onFieldInput);
+  memoInput.addEventListener('input', onFieldInput);
+
+  // ---------- sync ----------
+  function setStatus(kind, text) {
+    syncDot.className = 'dot' + (kind ? ' ' + kind : '');
+    syncText.textContent = text;
+  }
+  function updateSyncUI() {
+    var on = !!syncId;
+    syncOff.hidden = on;
+    syncOn.hidden = !on;
+    if (!on) setStatus('', '未接続（この端末のみに保存）');
+    if (on && !navigator.share) shareLinkBtn.hidden = true;
+  }
+  function shareUrl() {
+    return location.origin + location.pathname + '#c=' + syncId;
+  }
+  function docBody() {
+    return JSON.stringify({
+      schema: 1, v: state.v, updatedAt: state.updatedAt,
+      stamps: state.stamps, owner: state.owner, borrower: state.borrower,
+      memo: state.memo, cycles: state.cycles
+    });
+  }
+
+  function schedulePush() {
+    if (!syncId) return;
+    if (pushTimer) clearTimeout(pushTimer);
+    pushTimer = setTimeout(pushRemote, 500);
+  }
+
+  function pushRemote() {
+    if (!syncId) return;
+    setStatus('warn', '同期中…');
+    fetch(SYNC_API + '/' + syncId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: docBody()
+    }).then(function (res) {
+      if (res.status === 404) {
+        setStatus('bad', '共有カードが見つかりません（期限切れの可能性）。作成し直してください');
+        return;
+      }
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      setStatus('ok', '同期OK ' + fmtTime(new Date()));
+    }).catch(function () {
+      setStatus('bad', 'オフライン（この端末には保存済み・電波が戻れば自動同期）');
+    });
+  }
+
+  function pullRemote() {
+    if (!syncId || pulling) return;
+    pulling = true;
+    fetch(SYNC_API + '/' + syncId, { headers: { 'Accept': 'application/json' } })
+      .then(function (res) {
+        if (res.status === 404) { setStatus('bad', '共有カードが見つかりません（期限切れの可能性）'); return null; }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (raw) {
+        if (!raw) return;
+        var remote = normalize(raw);
+        if (!remote) return;
+        if (remote.v > state.v || (remote.v === state.v && remote.updatedAt > state.updatedAt)) {
+          state = remote;
+          render();
+          saveLocal();
+          setStatus('ok', '同期OK ' + fmtTime(new Date()));
+        } else if (remote.v < state.v) {
+          pushRemote();
+        } else {
+          setStatus('ok', '同期OK ' + fmtTime(new Date()));
+        }
+      })
+      .catch(function () {
+        setStatus('bad', 'オフライン（この端末には保存済み・電波が戻れば自動同期）');
+      })
+      .then(function () { pulling = false; });
+  }
+
+  function startPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(function () {
+      if (document.visibilityState === 'visible') pullRemote();
+    }, POLL_MS);
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && syncId) pullRemote();
+  });
+  window.addEventListener('focus', function () { if (syncId) pullRemote(); });
+
+  shareCreateBtn.addEventListener('click', function () {
+    shareCreateBtn.disabled = true;
+    setStatus('warn', '共有カードを作成中…');
+    fetch(SYNC_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: docBody()
+    }).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var loc = res.headers.get('Location') || res.headers.get('location') || '';
+      var id = (loc.split('/').pop() || '').trim();
+      if (!id) throw new Error('no id');
+      syncId = id;
+      saveSyncId();
+      updateSyncUI();
+      setStatus('ok', '共有カードを作成しました。リンクを相手に送ってください');
+      startPolling();
+    }).catch(function () {
+      setStatus('bad', '同期サービスに接続できませんでした。電波状況を確認して再試行してください');
+    }).then(function () { shareCreateBtn.disabled = false; });
+  });
+
+  function extractId(text) {
+    var m = String(text || '').match(/#c=([A-Za-z0-9-]+)/);
+    if (m) return m[1];
+    m = String(text || '').trim().match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+    if (m) return m[1];
+    var seg = String(text || '').trim().split('/').pop();
+    return /^[A-Za-z0-9-]{8,}$/.test(seg || '') ? seg : null;
+  }
+
+  function join(id, silent) {
+    setStatus('warn', '参加中…');
+    fetch(SYNC_API + '/' + id, { headers: { 'Accept': 'application/json' } })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (raw) {
+        var remote = normalize(raw);
+        if (!remote) throw new Error('bad doc');
+        syncId = id;
+        saveSyncId();
+        state = remote; // 参加時は共有カード側を正とする
+        render();
+        saveLocal();
+        updateSyncUI();
+        setStatus('ok', '共有カードに参加しました');
+        startPolling();
+      })
+      .catch(function () {
+        if (!silent) setStatus('bad', '参加できませんでした。リンクを確認してください');
+      });
+  }
+
+  joinBtn.addEventListener('click', function () {
+    var id = extractId(joinInput.value);
+    if (!id) { setStatus('bad', 'リンクまたはコードが読み取れませんでした'); return; }
+    join(id, false);
+  });
+
+  shareLinkBtn.addEventListener('click', function () {
+    if (navigator.share) {
+      navigator.share({ title: 'UEMATSU BIKE POINT CARD', text: '原付レンタルポイントカードを一緒に使おう', url: shareUrl() }).catch(function () { /* cancelled */ });
+    }
+  });
+  copyLinkBtn.addEventListener('click', function () {
+    var url = shareUrl();
+    var done = function () {
+      var t = copyLinkBtn.textContent;
+      copyLinkBtn.textContent = 'コピーしました';
+      setTimeout(function () { copyLinkBtn.textContent = t; }, 1500);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done, function () { window.prompt('このリンクをコピーしてください', url); });
+    } else {
+      window.prompt('このリンクをコピーしてください', url);
+    }
+  });
+  leaveBtn.addEventListener('click', function () {
+    syncId = null;
+    saveSyncId();
+    if (pollTimer) clearInterval(pollTimer);
+    updateSyncUI();
+  });
+
+  // ---------- boot ----------
+  loadLocal();
+  render();
+  updateSyncUI();
+
+  var hashId = extractId(location.hash);
+  if (hashId && hashId !== syncId) {
+    join(hashId, false);
+  } else if (syncId) {
+    setStatus('warn', '同期中…');
+    pullRemote();
+    startPolling();
+  }
+})();
+</script>
+</body>
+</html>
