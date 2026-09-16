@@ -288,7 +288,7 @@
 
     <div class="actions" id="owner-actions">
       <button type="button" class="btn ghost" id="delete-btn">このカードを削除</button>
-      <button type="button" class="btn" id="undo-btn" disabled>1つ戻す</button>
+      <button type="button" class="btn" id="undo-btn" disabled>スタンプを1つ取り消す</button>
     </div>
 
     <div class="reward" id="reward" hidden>
@@ -645,6 +645,7 @@
     var c = active();
     var n = c.stamps.length;
     if (idx !== n || n >= TOTAL) return;
+    if (!window.confirm('「' + cardLabel(c) + '」にスタンプ ' + (idx + 1) + ' を押しますか？')) return;
     c.stamps = c.stamps.concat([new Date().toISOString()]);
     justStamped = idx;
     commit();
@@ -652,11 +653,13 @@
   undoBtn.addEventListener('click', function () {
     var c = active();
     if (c.stamps.length === 0) return;
+    if (!window.confirm('最後のスタンプ（' + c.stamps.length + '個目）を取り消しますか？')) return;
     c.stamps = c.stamps.slice(0, -1);
     commit();
   });
   redeemBtn.addEventListener('click', function () {
     var c = active();
+    if (!window.confirm('たばこを渡しましたか？カードをリセットして完走回数を1増やします')) return;
     c.cycles += 1;
     c.stamps = [];
     commit();
