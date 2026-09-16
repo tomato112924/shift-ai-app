@@ -204,6 +204,26 @@
     </div>
   </div>
 
+  <!-- オーナーログイン -->
+  <div class="frame" id="screen-owner" hidden>
+    <div class="head">
+      <div class="brand">
+        <div class="name">UEMATSU BIKE</div>
+        <div class="sub">POINT CARD</div>
+      </div>
+    </div>
+    <div class="login-lead">オーナー用トークンでログイン</div>
+    <div class="sync-status"><span class="dot" id="owner-login-dot"></span><span id="owner-login-text">GitHubトークンを入力してください</span></div>
+    <div class="tok-row">
+      <input id="owner-tok-input" type="password" autocomplete="off" placeholder="github_pat_...">
+      <button type="button" class="btn primary" id="owner-login-btn">ログイン</button>
+    </div>
+    <div class="sync-note">トークンはこの端末の中にだけ保存され、次回からは入力不要です。作り方：GitHubの <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Fine-grained tokens</a> で、Repository access を shift-ai-app のみ、Permissions の Contents を Read and write にして作成。</div>
+    <div class="sync-actions">
+      <button type="button" class="btn ghost" id="owner-back">もどる</button>
+    </div>
+  </div>
+
   <!-- ライダー名選択 -->
   <div class="frame" id="screen-rider" hidden>
     <div class="head">
@@ -297,23 +317,15 @@
       </div>
     </div>
 
-    <!-- オーナー：クラウド保存設定 -->
+    <!-- オーナー：クラウド保存 -->
     <div class="sync" id="sync-owner">
       <div class="sync-head">クラウド保存（全員に共有）</div>
-      <div class="sync-status"><span class="dot" id="sync-dot"></span><span id="sync-text">未設定</span></div>
-      <div id="tok-setup">
-        <div class="tok-row" style="margin-bottom: 10px;">
-          <input id="tok-input" type="password" autocomplete="off" placeholder="GitHubトークンを貼り付け">
-          <button type="button" class="btn primary" id="tok-save">設定</button>
-        </div>
-        <div class="sync-note">トークンを設定すると、スタンプが自動でクラウドに保存され、ライダーが自分のスマホで見られるようになります。トークンはこの端末の中にだけ保存されます。作り方はGitHubの <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Fine-grained tokens</a> で、Repository access を shift-ai-app のみ、Permissions で Contents を Read and write にして作成。</div>
+      <div class="sync-status"><span class="dot" id="sync-dot"></span><span id="sync-text"></span></div>
+      <div class="sync-actions">
+        <button type="button" class="btn" id="sync-now-btn">今すぐ同期</button>
+        <button type="button" class="btn ghost" id="tok-clear">トークンを削除してログアウト</button>
       </div>
-      <div id="tok-set" hidden>
-        <div class="sync-actions">
-          <button type="button" class="btn" id="sync-now-btn">今すぐ同期</button>
-          <button type="button" class="btn ghost" id="tok-clear">トークンを削除</button>
-        </div>
-      </div>
+      <div class="sync-note">スタンプや編集は自動でクラウドに保存され、ライダーが自分のスマホで見られます。</div>
     </div>
 
     <!-- ライダー：更新 -->
@@ -354,7 +366,7 @@
 
   // ---------- elements ----------
   function $(id) { return document.getElementById(id); }
-  var screens = { select: $('screen-select'), rider: $('screen-rider'), app: $('screen-app') };
+  var screens = { select: $('screen-select'), owner: $('screen-owner'), rider: $('screen-rider'), app: $('screen-app') };
   var cardsRow = $('cards-row');
   var grid = $('grid');
   var ptNow = $('pt-now');
@@ -505,6 +517,7 @@
   // ---------- screens ----------
   function show(name) {
     screens.select.hidden = name !== 'select';
+    screens.owner.hidden = name !== 'owner';
     screens.rider.hidden = name !== 'rider';
     screens.app.hidden = name !== 'app';
   }
@@ -588,9 +601,6 @@
     if (document.activeElement !== memoInput) memoInput.value = c.memo;
     riderRo.textContent = c.rider || '—';
     memoRo.textContent = c.memo || '—';
-    // token panel
-    $('tok-setup').hidden = !!token;
-    $('tok-set').hidden = !token;
   }
 
   // ---------- owner: card management ----------
@@ -710,23 +720,45 @@
         oStatus('bad', 'オフライン（この端末のデータで動作中）');
       });
   }
-  $('tok-save').addEventListener('click', function () {
-    var t = $('tok-input').value.trim();
-    if (!t) return;
-    token = t;
-    setLS(LS_TOKEN, token);
-    $('tok-input').value = '';
-    render();
-    ownerPull();
-  });
   $('tok-clear').addEventListener('click', function () {
-    if (!window.confirm('トークンを削除しますか？（クラウド保存が止まります）')) return;
+    if (!window.confirm('トークンを削除してログアウトしますか？（次回はトークンの再入力が必要です）')) return;
     token = '';
+    mode = null;
     setLS(LS_TOKEN, '');
-    render();
-    oStatus('', '未設定（この端末のみに保存中）');
+    setLS(LS_MODE, '');
+    show('select');
   });
   $('sync-now-btn').addEventListener('click', ownerPull);
+
+  // ---------- owner login gate ----------
+  function enterOwner() {
+    mode = 'owner';
+    setLS(LS_MODE, mode);
+    show('app');
+    render();
+    ownerPull();
+  }
+  function ownerLoginStatus(kind, text) {
+    setStatus($('owner-login-dot'), $('owner-login-text'), kind, text);
+  }
+  $('owner-login-btn').addEventListener('click', function () {
+    var t = $('owner-tok-input').value.trim();
+    if (!t) { ownerLoginStatus('bad', 'トークンを入力してください'); return; }
+    ownerLoginStatus('warn', '確認中…');
+    fetch(REPO_API + '?ref=' + BRANCH + '&t=' + Date.now(), {
+      headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + t }
+    }).then(function (res) {
+      if (res.status === 401) { ownerLoginStatus('bad', 'トークンが正しくありません'); return; }
+      if (!res.ok) { ownerLoginStatus('bad', '確認できませんでした（HTTP ' + res.status + '）'); return; }
+      token = t;
+      setLS(LS_TOKEN, token);
+      $('owner-tok-input').value = '';
+      enterOwner();
+    }).catch(function () {
+      ownerLoginStatus('bad', '通信できませんでした。電波を確認してください');
+    });
+  });
+  $('owner-back').addEventListener('click', function () { show('select'); });
 
   // ---------- rider ----------
   function riderFetch(force) {
@@ -806,11 +838,9 @@
 
   // ---------- login / logout ----------
   $('login-owner').addEventListener('click', function () {
-    mode = 'owner';
-    setLS(LS_MODE, mode);
-    show('app');
-    render();
-    ownerPull();
+    if (token) { enterOwner(); return; }
+    ownerLoginStatus('', 'GitHubトークンを入力してください');
+    show('owner');
   });
   $('login-rider').addEventListener('click', function () {
     show('rider');
@@ -825,7 +855,7 @@
 
   // ---------- boot ----------
   loadLocal();
-  if (mode === 'owner') {
+  if (mode === 'owner' && token) {
     show('app');
     render();
     ownerPull();
