@@ -1,13 +1,15 @@
 {
-  "updatedAt": "2026-10-04T09:36:24.921Z",
+  "updatedAt": "2026-10-09T01:36:53.994Z",
   "cards": [
     {
       "id": "cxod27ifbmu4f0cic",
       "rider": "しぶや",
       "memo": "",
-      "stamps": [],
+      "stamps": [
+        "2026-10-09T01:36:53.993Z"
+      ],
       "cycles": 0,
-      "updatedAt": "2026-09-16T18:23:15.686Z"
+      "updatedAt": "2026-10-09T01:36:53.994Z"
     },
     {
       "id": "cp88alk8dmu4f0m1s",
