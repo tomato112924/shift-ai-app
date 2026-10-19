@@ -55,6 +55,7 @@
   /* mode bar */
   .modebar { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px solid var(--line-soft); padding-top: 12px; }
   .modebar .who { font-family: var(--font-label); font-weight: 600; font-size: 13px; letter-spacing: 2px; color: #cfcfcf; }
+  .modebar-btns { display: flex; gap: 8px; flex-shrink: 0; }
 
   /* login screens */
   .login-lead { font-size: 14px; color: #cfcfcf; letter-spacing: 1px; line-height: 1.8; }
@@ -132,6 +133,81 @@
   @keyframes slotkick { 0% { transform: scale(1); } 35% { transform: scale(0.9); } 100% { transform: scale(1); } }
   button.slot.just { animation: slotkick 0.3s ease-out; }
 
+  /* ===== pachinko fever ===== */
+  .flash {
+    position: fixed; inset: 0; z-index: 60; pointer-events: none;
+    background: #fff; opacity: 0;
+  }
+  .flash.go { animation: flashfire 0.85s ease-out; }
+  @keyframes flashfire {
+    0% { opacity: 0.95; } 10% { opacity: 0.08; } 19% { opacity: 0.8; }
+    30% { opacity: 0.04; } 42% { opacity: 0.55; } 60% { opacity: 0.02; }
+    70% { opacity: 0.3; } 100% { opacity: 0; }
+  }
+  @keyframes shakeit {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    15% { transform: translate(-7px, 4px) rotate(-0.5deg); }
+    30% { transform: translate(6px, -5px) rotate(0.4deg); }
+    45% { transform: translate(-5px, -3px) rotate(-0.3deg); }
+    60% { transform: translate(5px, 4px) rotate(0.4deg); }
+    80% { transform: translate(-3px, 2px) rotate(-0.2deg); }
+  }
+  .shaking { animation: shakeit 0.42s ease-in-out 3; }
+
+  .cutin {
+    position: fixed; inset: 0; z-index: 61; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cutin span {
+    font-family: var(--font-body); font-weight: 700;
+    font-size: clamp(52px, 19vw, 128px); line-height: 1;
+    color: #fff5d6; letter-spacing: 6px; white-space: nowrap;
+    -webkit-text-stroke: 3px #b71c1c;
+    text-shadow: 0 0 26px rgba(255, 120, 0, 0.95), 0 7px 0 #6d1010, 0 0 70px rgba(255, 60, 0, 0.7);
+    animation: cutin 1.15s cubic-bezier(0.12, 0.9, 0.2, 1.25) forwards;
+  }
+  @keyframes cutin {
+    0%   { transform: translateX(-130%) skewX(-26deg) scale(1.5); opacity: 0; }
+    16%  { transform: translateX(0) skewX(-8deg) scale(1); opacity: 1; }
+    22%  { transform: translateX(6px) skewX(-8deg) scale(1.04); }
+    70%  { transform: translateX(0) skewX(-8deg) scale(1); opacity: 1; }
+    100% { transform: translateX(130%) skewX(26deg) scale(1.3); opacity: 0; }
+  }
+
+  .teaser {
+    position: fixed; left: 0; right: 0; top: 22%; z-index: 55;
+    pointer-events: none; display: flex; justify-content: center; padding: 0 12px;
+  }
+  .teaser span {
+    font-family: var(--font-body); font-weight: 700;
+    font-size: clamp(19px, 6vw, 40px); letter-spacing: 2px; color: #fff;
+    padding: 10px 16px; white-space: nowrap; max-width: 100%;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75);
+    background: linear-gradient(90deg, rgba(0,0,0,0), #b03a10 18%, #e8761a 50%, #b03a10 82%, rgba(0,0,0,0));
+    animation: teaseIn 1.5s ease-out forwards;
+  }
+  .teaser.hot span {
+    background: linear-gradient(90deg, rgba(0,0,0,0), #8e0f0f 16%, #e02020 50%, #8e0f0f 84%, rgba(0,0,0,0));
+    -webkit-text-stroke: 1px #ffd54f;
+  }
+  @keyframes teaseIn {
+    0%   { transform: scale(0.55) skewX(-10deg); opacity: 0; }
+    14%  { transform: scale(1.1) skewX(-10deg); opacity: 1; }
+    24%  { transform: scale(1) skewX(-10deg); }
+    72%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.06) skewX(-10deg); }
+  }
+
+  .rays {
+    position: absolute; left: 50%; top: 50%; width: 220vmax; height: 220vmax;
+    margin-left: -110vmax; margin-top: -110vmax; pointer-events: none;
+    background: repeating-conic-gradient(from 0deg,
+      rgba(255, 206, 84, 0.42) 0deg 6deg,
+      rgba(255, 206, 84, 0) 6deg 19deg);
+    animation: spinrays 7s linear infinite;
+  }
+  @keyframes spinrays { to { transform: rotate(360deg); } }
+
   /* celebration */
   .celebrate {
     position: fixed; inset: 0; z-index: 50;
@@ -141,30 +217,48 @@
   }
   .celebrate canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .ce-card {
-    position: relative; background: var(--paper); color: var(--paper-ink);
-    padding: 30px 26px; text-align: center;
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    position: relative; background: #0b0b0b; color: #ffe9a8;
+    border: 4px solid #e0b64a;
+    box-shadow: 0 0 0 2px #0b0b0b, 0 0 34px rgba(255, 190, 60, 0.75), inset 0 0 28px rgba(255, 190, 60, 0.18);
+    padding: 26px 22px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
     max-width: 360px; width: 100%;
     animation: ceslam 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.5);
   }
+  .ce-card .ce-kanji {
+    font-family: var(--font-body); font-weight: 700;
+    font-size: clamp(50px, 17vw, 76px); line-height: 1; letter-spacing: 6px;
+    background: linear-gradient(180deg, #fff6cf 0%, #f3c64b 45%, #b8860b 70%, #ffe9a8 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.8));
+  }
+  .ce-card .ce-kanji-glow {
+    position: absolute; left: 0; right: 0; top: 26px;
+    font-family: var(--font-body); font-weight: 700;
+    font-size: clamp(50px, 17vw, 76px); line-height: 1; letter-spacing: 6px;
+    color: rgba(255, 180, 40, 0.55); filter: blur(13px); pointer-events: none;
+    animation: kanjipulse 1.1s ease-in-out infinite;
+  }
+  @keyframes kanjipulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.95; } }
   @keyframes ceslam {
     0%   { transform: scale(2.2) rotate(-12deg); opacity: 0; }
     60%  { transform: scale(0.94) rotate(2deg); opacity: 1; }
     100% { transform: scale(1) rotate(0deg); }
   }
-  .ce-card .ce-num { font-family: var(--font-display); font-size: 74px; line-height: 0.85; letter-spacing: 3px; }
-  .ce-card .ce-sub { font-family: var(--font-display); font-size: 22px; line-height: 1; letter-spacing: 11px; color: #555; }
-  .ce-card .ce-rule { width: 56px; border-top: 2px solid var(--paper-ink); margin: 4px 0; }
-  .ce-card .ce-jp { font-weight: 700; font-size: 15px; letter-spacing: 2px; }
-  .ce-card .ce-name { font-size: 12px; letter-spacing: 2px; color: #666; }
+  .ce-card .ce-num { font-family: var(--font-display); font-size: 40px; line-height: 0.9; letter-spacing: 4px; color: #ffe9a8; }
+  .ce-card .ce-rule { width: 70px; border-top: 2px solid #e0b64a; margin: 3px 0; }
+  .ce-card .ce-jp { font-weight: 700; font-size: 16px; letter-spacing: 3px; color: #fff3cf; }
+  .ce-card .ce-name { font-size: 12px; letter-spacing: 2px; color: #c7a558; }
   .ce-card button {
-    margin-top: 6px; background: var(--paper-ink); color: var(--paper); border: none;
+    margin-top: 8px; background: linear-gradient(180deg, #f6d98b, #d2a333); color: #2a1c00; border: none;
     font-family: var(--font-body); font-weight: 700; font-size: 14px; letter-spacing: 3px;
     padding: 13px 34px; cursor: pointer; min-height: 48px;
   }
   @media (prefers-reduced-motion: reduce) {
-    button.slot.just .mark, button.slot.just, button.slot.just::after, .ce-card { animation: none; }
-    button.slot.just::after { display: none; }
+    button.slot.just .mark, button.slot.just, button.slot.just::after, .ce-card,
+    .flash, .shaking, .cutin span, .teaser span, .rays, .ce-card .ce-kanji-glow { animation: none; }
+    button.slot.just::after, .flash, .cutin, .teaser, .rays { display: none; }
   }
 
   .actions { display: flex; justify-content: space-between; align-items: center; }
@@ -321,7 +415,10 @@
 
     <div class="modebar">
       <span class="who" id="mode-label"></span>
-      <button type="button" class="btn ghost" id="switch-btn">ログアウト</button>
+      <div class="modebar-btns">
+        <button type="button" class="btn ghost" id="sound-btn">音 ON</button>
+        <button type="button" class="btn ghost" id="switch-btn">ログアウト</button>
+      </div>
     </div>
 
     <div id="owner-cards">
@@ -393,16 +490,21 @@
 </div>
 
 <div class="celebrate" id="celebrate" hidden>
+  <div class="rays"></div>
   <canvas id="confetti"></canvas>
   <div class="ce-card">
-    <div class="ce-num">10/10</div>
-    <div class="ce-sub">COMPLETE</div>
+    <div class="ce-kanji-glow" aria-hidden="true">大当り</div>
+    <div class="ce-kanji">大当り</div>
+    <div class="ce-num">10 / 10</div>
     <div class="ce-rule"></div>
-    <div class="ce-jp">たばこ1箱 ゲット!</div>
+    <div class="ce-jp">たばこ1箱 確定!!</div>
     <div class="ce-name" id="ce-name"></div>
     <button type="button" id="ce-close">閉じる</button>
   </div>
 </div>
+<div class="flash" id="flash" aria-hidden="true"></div>
+<div class="cutin" id="cutin" aria-hidden="true" hidden><span id="cutin-text">激アツ</span></div>
+<div class="teaser" id="teaser" aria-hidden="true" hidden><span id="teaser-text"></span></div>
 
 <script>
 (function () {
@@ -601,9 +703,11 @@
     canvas.height = Math.floor(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    var colors = ['#f2f2f2', '#b8b8b8', '#8a8a8a', '#e8c15a'];
+    // 金メイン＋虹色を少し（パチンコの虹＝激アツ）
+    var colors = ['#ffd84d', '#f5c02a', '#fff3c4', '#e0b64a', '#f2f2f2',
+                  '#ff4d6d', '#4dd0e1', '#9ccc65', '#ba68c8'];
     var bits = [];
-    for (var i = 0; i < 90; i++) {
+    for (var i = 0; i < 140; i++) {
       bits.push({
         x: w * (0.15 + Math.random() * 0.7),
         y: h * 0.42 - Math.random() * h * 0.2,
@@ -648,13 +752,206 @@
     confettiRaf = window.requestAnimationFrame(frame);
   }
 
+  // ---------- 効果音（Web Audioで合成） ----------
+  var sfx = (function () {
+    var ctx = null;
+    var muted = false;
+    try { muted = localStorage.getItem('ub-muted') === '1'; } catch (e) { muted = false; }
+
+    function Ctor() { return window.AudioContext || window.webkitAudioContext; }
+    function ac() {
+      if (muted) return null;
+      var C = Ctor();
+      if (!C) return null;
+      if (!ctx) { try { ctx = new C(); } catch (e) { return null; } }
+      if (ctx.state === 'suspended') { try { ctx.resume(); } catch (e) { /* ignore */ } }
+      return ctx;
+    }
+    function tone(freq, at, dur, type, peak, glideTo) {
+      var c = ac(); if (!c) return;
+      var t = c.currentTime + at;
+      var o = c.createOscillator(), g = c.createGain();
+      o.type = type || 'square';
+      o.frequency.setValueAtTime(freq, t);
+      if (glideTo) o.frequency.exponentialRampToValueAtTime(Math.max(20, glideTo), t + dur);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(peak || 0.18, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(c.destination);
+      o.start(t); o.stop(t + dur + 0.03);
+    }
+    function noise(at, dur, peak, type, cutoff) {
+      var c = ac(); if (!c) return;
+      var t = c.currentTime + at;
+      var len = Math.max(1, Math.floor(c.sampleRate * dur));
+      var buf = c.createBuffer(1, len, c.sampleRate);
+      var d = buf.getChannelData(0);
+      for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      var src = c.createBufferSource(); src.buffer = buf;
+      var f = c.createBiquadFilter();
+      f.type = type || 'highpass';
+      f.frequency.value = cutoff || 3000;
+      var g = c.createGain(); g.gain.value = peak || 0.12;
+      src.connect(f); f.connect(g); g.connect(c.destination);
+      src.start(t);
+    }
+
+    return {
+      unlock: function () { ac(); },
+      isMuted: function () { return muted; },
+      setMuted: function (v) {
+        muted = !!v;
+        try { localStorage.setItem('ub-muted', muted ? '1' : '0'); } catch (e) { /* ignore */ }
+        if (muted && ctx) { try { ctx.suspend(); } catch (e) { /* ignore */ } }
+        if (!muted) ac();
+      },
+      // カコッ（スタンプ）
+      stamp: function () {
+        tone(1050, 0, 0.055, 'square', 0.16, 320);
+        noise(0, 0.05, 0.1, 'highpass', 2600);
+      },
+      // ピロピロ（チャンス予告）
+      tension: function (level) {
+        var base = 620 + level * 90;
+        tone(base, 0, 0.1, 'square', 0.14);
+        tone(base * 1.5, 0.11, 0.1, 'square', 0.14);
+        tone(base * 2, 0.22, 0.16, 'square', 0.14);
+      },
+      // キュイーン（リーチ）
+      reach: function () {
+        tone(260, 0, 0.75, 'sawtooth', 0.13, 2100);
+        tone(262, 0.02, 0.75, 'sawtooth', 0.1, 2240);
+        noise(0, 0.75, 0.07, 'highpass', 1800);
+        tone(1800, 0.72, 0.22, 'triangle', 0.16, 900);
+      },
+      // ドーン（大当り着弾）
+      hit: function () {
+        tone(190, 0, 0.45, 'sine', 0.45, 42);
+        tone(96, 0, 0.6, 'sine', 0.3, 38);
+        noise(0, 0.65, 0.2, 'highpass', 4200);
+        noise(0, 0.3, 0.14, 'lowpass', 900);
+      },
+      // ファンファーレ＋鐘
+      fanfare: function () {
+        var n = [523.25, 659.25, 783.99, 1046.5];
+        for (var i = 0; i < n.length; i++) {
+          tone(n[i], i * 0.1, 0.16, 'square', 0.17);
+          tone(n[i] / 2, i * 0.1, 0.16, 'triangle', 0.1);
+        }
+        tone(1046.5, 0.42, 0.9, 'square', 0.15);
+        tone(1318.5, 0.42, 0.9, 'square', 0.12);
+        tone(1568.0, 0.42, 0.9, 'triangle', 0.1);
+        tone(523.25, 0.42, 0.95, 'triangle', 0.12);
+        noise(0.42, 0.5, 0.12, 'highpass', 5000);
+        for (var k = 0; k < 9; k++) {
+          var f = k % 2 === 0 ? 1046.5 : 1318.5;
+          tone(f * 2, 1.35 + k * 0.135, 0.26, 'triangle', 0.13);
+          tone(f, 1.35 + k * 0.135, 0.22, 'sine', 0.09);
+        }
+      }
+    };
+  })();
+
+  // 最初のタップで音声を解錠（iOSはユーザー操作が必要）
+  (function () {
+    function unlock() {
+      sfx.unlock();
+      document.removeEventListener('touchend', unlock);
+      document.removeEventListener('click', unlock);
+    }
+    document.addEventListener('touchend', unlock);
+    document.addEventListener('click', unlock);
+  })();
+
+  function syncSoundBtn() {
+    var b = $('sound-btn');
+    b.textContent = sfx.isMuted() ? '音 OFF' : '音 ON';
+    b.setAttribute('aria-pressed', sfx.isMuted() ? 'false' : 'true');
+  }
+  $('sound-btn').addEventListener('click', function () {
+    sfx.setMuted(!sfx.isMuted());
+    syncSoundBtn();
+    if (!sfx.isMuted()) sfx.stamp();
+  });
+
+  // ---------- 予告・リーチ演出 ----------
+  var teaseTimer = null;
+  function tease(text, hot) {
+    if (reduceMotion) return;
+    var el = $('teaser');
+    var sp = $('teaser-text');
+    el.className = 'teaser' + (hot ? ' hot' : '');
+    sp.textContent = text;
+    el.hidden = true;
+    // アニメーションを確実に再生させる
+    void sp.offsetWidth;
+    el.hidden = false;
+    sp.style.animation = 'none';
+    void sp.offsetWidth;
+    sp.style.animation = '';
+    if (teaseTimer) clearTimeout(teaseTimer);
+    teaseTimer = setTimeout(function () { el.hidden = true; }, 1600);
+  }
+
+  function flashScreen() {
+    if (reduceMotion) return;
+    var el = $('flash');
+    el.classList.remove('go');
+    void el.offsetWidth;
+    el.classList.add('go');
+    setTimeout(function () { el.classList.remove('go'); }, 950);
+  }
+
+  function shakeScreen() {
+    if (reduceMotion) return;
+    var el = document.querySelector('.wrap');
+    if (!el) return;
+    el.classList.remove('shaking');
+    void el.offsetWidth;
+    el.classList.add('shaking');
+    setTimeout(function () { el.classList.remove('shaking'); }, 1350);
+  }
+
+  function cutIn(text) {
+    if (reduceMotion) return;
+    var el = $('cutin');
+    var sp = $('cutin-text');
+    sp.textContent = text;
+    el.hidden = false;
+    sp.style.animation = 'none';
+    void sp.offsetWidth;
+    sp.style.animation = '';
+    setTimeout(function () { el.hidden = true; }, 1200);
+  }
+
+  // ---------- 大当り ----------
+  var celebrateTimers = [];
+  function clearCelebrateTimers() {
+    for (var i = 0; i < celebrateTimers.length; i++) clearTimeout(celebrateTimers[i]);
+    celebrateTimers = [];
+  }
   function celebrate(name) {
+    clearCelebrateTimers();
     $('ce-name').textContent = name ? name + ' のカード' : '';
-    $('celebrate').hidden = false;
-    buzz([0, 90, 70, 90, 70, 220]);
-    if (!reduceMotion) runConfetti();
+
+    // 第1段階：フラッシュ＋激アツカットイン
+    flashScreen();
+    shakeScreen();
+    cutIn('激アツ');
+    sfx.hit();
+    sfx.reach();
+    buzz([0, 120, 60, 120, 60, 90, 50, 300]);
+
+    // 第2段階：大当り画面＋ファンファーレ＋紙吹雪
+    celebrateTimers.push(setTimeout(function () {
+      $('celebrate').hidden = false;
+      sfx.fanfare();
+      buzz([0, 260, 90, 160, 80, 160, 80, 420]);
+      if (!reduceMotion) { runConfetti(); flashScreen(); }
+    }, reduceMotion ? 0 : 1150));
   }
   function closeCelebrate() {
+    clearCelebrateTimers();
     $('celebrate').hidden = true;
     if (confettiRaf) { window.cancelAnimationFrame(confettiRaf); confettiRaf = null; }
   }
@@ -662,6 +959,27 @@
   $('celebrate').addEventListener('click', function (e) {
     if (e.target === $('celebrate')) closeCelebrate();
   });
+
+  // スタンプ数に応じた演出（押した側・見ている側 共通）
+  function reactToCount(n, name) {
+    if (n >= TOTAL) { celebrate(name); return; }
+    if (n === TOTAL - 1) {
+      sfx.reach();
+      tease('激アツ!! あと1個', true);
+      flashScreen();
+      shakeScreen();
+      buzz([0, 70, 50, 70, 50, 180]);
+      return;
+    }
+    if (n === TOTAL - 2) {
+      sfx.tension(2);
+      tease('アツい! あと2個', false);
+      buzz([0, 50, 40, 90]);
+      return;
+    }
+    sfx.stamp();
+    buzz(18);
+  }
 
   // ---------- screens ----------
   function show(name) {
@@ -795,8 +1113,7 @@
     c.stamps = c.stamps.concat([new Date().toISOString()]);
     justStamped = idx;
     commit();
-    buzz(c.stamps.length >= TOTAL ? 30 : 18);
-    if (c.stamps.length >= TOTAL) celebrate(cardLabel(c));
+    reactToCount(c.stamps.length, cardLabel(c));
   }
   undoBtn.addEventListener('click', function () {
     var c = active();
@@ -947,14 +1264,15 @@
           return;
         }
         // 同じカードを見続けていて、今まさに10個目が押された時だけ祝う
+        // 同じカードを見続けていて、たった今スタンプが増えた時だけ演出
         var prev = store.cards.length && store.cards[0].id === found.id ? store.cards[0] : null;
-        var reached = !!prev && prev.stamps.length < TOTAL && found.stamps.length >= TOTAL;
+        var grew = !!prev && found.stamps.length > prev.stamps.length;
         store.cards = [found];
         store.activeId = found.id;
         saveLocal();
         render();
         rStatus('ok', '自動更新中 — 最終 ' + fmtTime(new Date()));
-        if (reached) celebrate(found.rider);
+        if (grew) reactToCount(found.stamps.length, found.rider);
       })
       .catch(function () {
         rStatus('bad', 'オフライン（最後に取得したカードを表示中）');
@@ -1035,6 +1353,7 @@
 
   // ---------- boot ----------
   loadLocal();
+  syncSoundBtn();
   if (mode === 'owner' && token) {
     show('app');
     render();
