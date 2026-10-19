@@ -113,9 +113,59 @@
   }
   button.slot.last .bonus { position: absolute; bottom: 11%; font-size: 8px; letter-spacing: 1px; white-space: nowrap; color: var(--silver); font-family: var(--font-label); font-weight: 600; }
   button.slot.last.stamped .bonus { display: none; }
-  @keyframes stampin { from { transform: scale(1.6) rotate(-18deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
-  button.slot.just .mark { animation: stampin 0.25s ease-out; }
-  @media (prefers-reduced-motion: reduce) { button.slot.just .mark { animation: none; } }
+  @keyframes stampin {
+    0%   { transform: scale(2.4) rotate(-24deg); opacity: 0; }
+    55%  { transform: scale(0.88) rotate(4deg); opacity: 1; }
+    75%  { transform: scale(1.06) rotate(-2deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  button.slot.just .mark { animation: stampin 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.4); }
+  @keyframes shock {
+    from { transform: scale(0.75); opacity: 0.85; }
+    to   { transform: scale(1.85); opacity: 0; }
+  }
+  button.slot.just::after {
+    content: ""; position: absolute; inset: -5px; border-radius: 50%;
+    border: 3px solid #f2f2f2; pointer-events: none;
+    animation: shock 0.5s ease-out forwards;
+  }
+  @keyframes slotkick { 0% { transform: scale(1); } 35% { transform: scale(0.9); } 100% { transform: scale(1); } }
+  button.slot.just { animation: slotkick 0.3s ease-out; }
+
+  /* celebration */
+  .celebrate {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(8, 8, 8, 0.88);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .celebrate canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ce-card {
+    position: relative; background: var(--paper); color: var(--paper-ink);
+    padding: 30px 26px; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    max-width: 360px; width: 100%;
+    animation: ceslam 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.5);
+  }
+  @keyframes ceslam {
+    0%   { transform: scale(2.2) rotate(-12deg); opacity: 0; }
+    60%  { transform: scale(0.94) rotate(2deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  .ce-card .ce-num { font-family: var(--font-display); font-size: 74px; line-height: 0.85; letter-spacing: 3px; }
+  .ce-card .ce-sub { font-family: var(--font-display); font-size: 22px; line-height: 1; letter-spacing: 11px; color: #555; }
+  .ce-card .ce-rule { width: 56px; border-top: 2px solid var(--paper-ink); margin: 4px 0; }
+  .ce-card .ce-jp { font-weight: 700; font-size: 15px; letter-spacing: 2px; }
+  .ce-card .ce-name { font-size: 12px; letter-spacing: 2px; color: #666; }
+  .ce-card button {
+    margin-top: 6px; background: var(--paper-ink); color: var(--paper); border: none;
+    font-family: var(--font-body); font-weight: 700; font-size: 14px; letter-spacing: 3px;
+    padding: 13px 34px; cursor: pointer; min-height: 48px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    button.slot.just .mark, button.slot.just, button.slot.just::after, .ce-card { animation: none; }
+    button.slot.just::after { display: none; }
+  }
 
   .actions { display: flex; justify-content: space-between; align-items: center; }
   .btn {
@@ -342,6 +392,18 @@
   </div>
 </div>
 
+<div class="celebrate" id="celebrate" hidden>
+  <canvas id="confetti"></canvas>
+  <div class="ce-card">
+    <div class="ce-num">10/10</div>
+    <div class="ce-sub">COMPLETE</div>
+    <div class="ce-rule"></div>
+    <div class="ce-jp">たばこ1箱 ゲット!</div>
+    <div class="ce-name" id="ce-name"></div>
+    <button type="button" id="ce-close">閉じる</button>
+  </div>
+</div>
+
 <script>
 (function () {
   'use strict';
@@ -366,6 +428,8 @@
   var saving = false;
   var savePending = false;
   var lastRiderFetch = 0;
+  var riderPollTimer = null;
+  var confettiRaf = null;
 
   // ---------- elements ----------
   function $(id) { return document.getElementById(id); }
@@ -517,6 +581,88 @@
   var oStatus = function (kind, text) { setStatus($('sync-dot'), $('sync-text'), kind, text); };
   var rStatus = function (kind, text) { setStatus($('rsync-dot'), $('rsync-text'), kind, text); };
 
+  // ---------- celebration ----------
+  var reduceMotion = false;
+  try {
+    reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch (e) { reduceMotion = false; }
+
+  function buzz(pattern) {
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) { /* unsupported */ }
+  }
+
+  function runConfetti() {
+    var canvas = $('confetti');
+    var ctx = canvas.getContext && canvas.getContext('2d');
+    if (!ctx) return;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    var colors = ['#f2f2f2', '#b8b8b8', '#8a8a8a', '#e8c15a'];
+    var bits = [];
+    for (var i = 0; i < 90; i++) {
+      bits.push({
+        x: w * (0.15 + Math.random() * 0.7),
+        y: h * 0.42 - Math.random() * h * 0.2,
+        vx: (Math.random() - 0.5) * 7,
+        vy: -4 - Math.random() * 9,
+        w: 5 + Math.random() * 7,
+        h: 8 + Math.random() * 10,
+        rot: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 0.4,
+        color: colors[(Math.random() * colors.length) | 0]
+      });
+    }
+
+    var started = Date.now();
+    function frame() {
+      var elapsed = Date.now() - started;
+      ctx.clearRect(0, 0, w, h);
+      var fade = elapsed > 2200 ? Math.max(0, 1 - (elapsed - 2200) / 900) : 1;
+      for (var i = 0; i < bits.length; i++) {
+        var b = bits[i];
+        b.vy += 0.33;
+        b.vx *= 0.995;
+        b.x += b.vx;
+        b.y += b.vy;
+        b.rot += b.vr;
+        ctx.save();
+        ctx.globalAlpha = fade;
+        ctx.translate(b.x, b.y);
+        ctx.rotate(b.rot);
+        ctx.fillStyle = b.color;
+        ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h);
+        ctx.restore();
+      }
+      if (elapsed < 3100) {
+        confettiRaf = window.requestAnimationFrame(frame);
+      } else {
+        ctx.clearRect(0, 0, w, h);
+        confettiRaf = null;
+      }
+    }
+    if (confettiRaf) window.cancelAnimationFrame(confettiRaf);
+    confettiRaf = window.requestAnimationFrame(frame);
+  }
+
+  function celebrate(name) {
+    $('ce-name').textContent = name ? name + ' のカード' : '';
+    $('celebrate').hidden = false;
+    buzz([0, 90, 70, 90, 70, 220]);
+    if (!reduceMotion) runConfetti();
+  }
+  function closeCelebrate() {
+    $('celebrate').hidden = true;
+    if (confettiRaf) { window.cancelAnimationFrame(confettiRaf); confettiRaf = null; }
+  }
+  $('ce-close').addEventListener('click', closeCelebrate);
+  $('celebrate').addEventListener('click', function (e) {
+    if (e.target === $('celebrate')) closeCelebrate();
+  });
+
   // ---------- screens ----------
   function show(name) {
     screens.select.hidden = name !== 'select';
@@ -649,6 +795,8 @@
     c.stamps = c.stamps.concat([new Date().toISOString()]);
     justStamped = idx;
     commit();
+    buzz(c.stamps.length >= TOTAL ? 30 : 18);
+    if (c.stamps.length >= TOTAL) celebrate(cardLabel(c));
   }
   undoBtn.addEventListener('click', function () {
     var c = active();
@@ -798,19 +946,32 @@
           rStatus('bad', '「' + riderName + '」のカードが見つかりません（植松側で作成待ち）');
           return;
         }
+        // 同じカードを見続けていて、今まさに10個目が押された時だけ祝う
+        var prev = store.cards.length && store.cards[0].id === found.id ? store.cards[0] : null;
+        var reached = !!prev && prev.stamps.length < TOTAL && found.stamps.length >= TOTAL;
         store.cards = [found];
         store.activeId = found.id;
         saveLocal();
         render();
-        rStatus('ok', '更新 ' + fmtTime(new Date()));
+        rStatus('ok', '自動更新中 — 最終 ' + fmtTime(new Date()));
+        if (reached) celebrate(found.rider);
       })
       .catch(function () {
         rStatus('bad', 'オフライン（最後に取得したカードを表示中）');
       });
   }
+  function startRiderPolling() {
+    if (riderPollTimer) clearInterval(riderPollTimer);
+    riderPollTimer = setInterval(function () {
+      if (document.visibilityState === 'visible' && mode === 'rider' && !screens.app.hidden) riderRefresh(true);
+    }, 20000);
+  }
   $('refresh-btn').addEventListener('click', function () { riderRefresh(true); });
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible' && mode === 'rider' && !screens.app.hidden) riderRefresh(false);
+    if (document.visibilityState === 'visible' && mode === 'rider' && !screens.app.hidden) riderRefresh(true);
+  });
+  window.addEventListener('focus', function () {
+    if (mode === 'rider' && !screens.app.hidden) riderRefresh(false);
   });
 
   // ---------- rider login screen ----------
@@ -842,6 +1003,7 @@
             show('app');
             render();
             riderRefresh(true);
+            startRiderPolling();
           });
           list.appendChild(b);
         });
@@ -864,6 +1026,7 @@
     riderLoginLoad();
   });
   $('switch-btn').addEventListener('click', function () {
+    if (riderPollTimer) { clearInterval(riderPollTimer); riderPollTimer = null; }
     mode = null;
     setLS(LS_MODE, '');
     setLS(LS_RIDER, '');
@@ -880,6 +1043,7 @@
     show('app');
     render();
     riderRefresh(true);
+    startRiderPolling();
   } else {
     show('select');
   }
