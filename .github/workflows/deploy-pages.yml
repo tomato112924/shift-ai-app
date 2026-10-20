@@ -7,6 +7,7 @@ on:
       - claude/cool-bardeen-vcfk9k
     paths:
       - "uematsu-bike/**"
+      - "samples/**"
       - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
@@ -30,8 +31,14 @@ jobs:
       - uses: actions/configure-pages@v5
         with:
           enablement: true
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          cp -r uematsu-bike/. _site/
+          mkdir -p _site/samples
+          cp -r samples/. _site/samples/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: uematsu-bike
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
