@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6efe4">
+<title>珈琲 つむぎ | 自家焙煎の小さな喫茶店</title>
+<meta name="description" content="住宅街の小さな自家焙煎珈琲店「珈琲 つむぎ」。注文を受けてから淹れる一杯と、毎朝焼く焼き菓子。(これは制作見本のための架空のお店です)">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --bg: #f6efe4;
+    --bg-alt: #ede2d0;
+    --ink: #3a2a20;
+    --muted: #7a6657;
+    --accent: #a4532b;
+    --accent-dark: #823f1f;
+    --card: #fffaf2;
+    --line: #d9c9b2;
+    --serif: 'Noto Serif JP', 'Hiragino Mincho ProN', serif;
+    --sans: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1f1712;
+      --bg-alt: #2a2019;
+      --ink: #f1e6d6;
+      --muted: #b9a590;
+      --accent: #e0905f;
+      --accent-dark: #f0a877;
+      --card: #2e231b;
+      --line: #4a3a2d;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.85;
+    -webkit-text-size-adjust: 100%;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 700; line-height: 1.5; margin: 0; }
+  .sample-bar {
+    background: var(--ink); color: var(--bg);
+    font-size: 12px; text-align: center; padding: 6px 12px;
+  }
+  header.site {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px; max-width: 960px; margin: 0 auto;
+  }
+  .logo { font-family: var(--serif); font-weight: 700; font-size: 20px; letter-spacing: .1em; text-decoration: none; }
+  nav.site a { margin-left: 18px; font-size: 14px; text-decoration: none; color: var(--muted); }
+  nav.site a:hover { color: var(--accent); }
+  @media (max-width: 560px) { nav.site { display: none; } }
+
+  .hero { padding: 56px 0 72px; text-align: center; }
+  .hero .cup { width: 96px; height: 96px; margin: 0 auto 24px; color: var(--accent); }
+  .hero h1 { font-size: clamp(28px, 6vw, 44px); letter-spacing: .08em; }
+  .hero p.lead { max-width: 30em; margin: 20px auto 32px; color: var(--muted); }
+  .btn {
+    display: inline-block; background: var(--accent); color: #fff;
+    padding: 14px 32px; border-radius: 999px; text-decoration: none;
+    font-weight: 700; letter-spacing: .05em; transition: background .2s;
+  }
+  .btn:hover { background: var(--accent-dark); }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); margin-left: 8px; }
+  .btn.ghost:hover { background: var(--accent); color: #fff; }
+  @media (max-width: 480px) { .btn.ghost { margin: 12px 0 0; } }
+
+  section { padding: 64px 0; }
+  section.alt { background: var(--bg-alt); }
+  .sec-title { text-align: center; margin-bottom: 40px; }
+  .sec-title small { display: block; font-family: var(--sans); font-size: 12px; letter-spacing: .3em; color: var(--accent); margin-bottom: 6px; }
+  .sec-title h2 { font-size: clamp(22px, 4.5vw, 30px); }
+
+  .features { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 28px 24px; }
+  .card .num { font-family: var(--serif); font-size: 28px; color: var(--accent); }
+  .card h3 { font-size: 18px; margin: 4px 0 10px; }
+  .card p { margin: 0; font-size: 14px; color: var(--muted); }
+
+  .menu { display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .menu h3 { font-size: 17px; border-bottom: 2px solid var(--accent); padding-bottom: 8px; margin-bottom: 8px; }
+  .menu ul { list-style: none; margin: 0; padding: 0; }
+  .menu li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px dotted var(--line); font-size: 15px; }
+  .menu li span.note { display: block; font-size: 12px; color: var(--muted); }
+  .menu li .price { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .menu-note { text-align: center; font-size: 12px; color: var(--muted); margin-top: 24px; }
+
+  .story { max-width: 36em; margin: 0 auto; }
+  .story p { margin: 0 0 1.2em; }
+
+  .info { display: grid; gap: 32px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: start; }
+  dl.shop { margin: 0; }
+  dl.shop div { display: flex; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+  dl.shop dt { width: 6em; flex-shrink: 0; color: var(--muted); }
+  dl.shop dd { margin: 0; }
+  .map {
+    aspect-ratio: 4/3; border-radius: 12px; border: 1px dashed var(--line);
+    background: var(--card); display: grid; place-items: center;
+    color: var(--muted); font-size: 13px; text-align: center; padding: 16px;
+  }
+
+  .cta { text-align: center; }
+  .cta p { color: var(--muted); margin: 16px 0 28px; }
+
+  footer { padding: 32px 20px 48px; text-align: center; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="sample-bar">※ このページは制作見本です。店名・住所・メニュー・価格はすべて架空のものです。</div>
+
+<header class="site">
+  <a class="logo" href="#top">珈琲 つむぎ</a>
+  <nav class="site">
+    <a href="#about">こだわり</a>
+    <a href="#menu">メニュー</a>
+    <a href="#access">アクセス</a>
+  </nav>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <svg class="cup" viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 40h50v18a20 20 0 0 1-20 20h-10a20 20 0 0 1-20-20V40z"/>
+        <path d="M70 46h6a8 8 0 0 1 0 16h-8"/>
+        <path d="M34 28c0-5 5-5 5-10M48 28c0-5 5-5 5-10M62 28c0-5 5-5 5-10"/>
+      </svg>
+      <h1>一杯ずつ、ていねいに。<br>住宅街の小さな自家焙煎珈琲店</h1>
+      <p class="lead">注文を受けてから一杯ずつハンドドリップ。毎朝焼く焼き菓子と一緒に、ゆっくりした時間をどうぞ。</p>
+      <a class="btn" href="#menu">メニューを見る</a>
+      <a class="btn ghost" href="#access">お店への行き方</a>
+    </div>
+  </div>
+
+  <section id="about" class="alt">
+    <div class="wrap">
+      <div class="sec-title"><small>ABOUT</small><h2>つむぎが大切にしていること</h2></div>
+      <div class="features">
+        <div class="card"><div class="num">01</div><h3>自家焙煎の豆</h3><p>店内の小さな焙煎機で、少量ずつ焼き上げます。焙煎日をお伝えするので、鮮度が気になる方も安心です。</p></div>
+        <div class="card"><div class="num">02</div><h3>一杯ずつ丁寧に</h3><p>ご注文ごとに豆を挽き、ハンドドリップで抽出。香りが立つ淹れたての味をお届けします。</p></div>
+        <div class="card"><div class="num">03</div><h3>毎朝焼く焼き菓子</h3><p>バターや卵は近隣の生産者さんのもの。珈琲に合う、甘さ控えめのお菓子を揃えています。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="menu">
+    <div class="wrap">
+      <div class="sec-title"><small>MENU</small><h2>メニュー</h2></div>
+      <div class="menu">
+        <div>
+          <h3>ドリンク</h3>
+          <ul>
+            <li><div>本日のブレンド<span class="note">やさしい苦みとコク</span></div><span class="price">550円</span></li>
+            <li><div>シングルオリジン<span class="note">産地は日替わり</span></div><span class="price">650円〜</span></li>
+            <li><div>カフェラテ</div><span class="price">620円</span></li>
+            <li><div>アイスコーヒー<span class="note">水出し・12時間</span></div><span class="price">600円</span></li>
+            <li><div>ほうじ茶ラテ</div><span class="price">600円</span></li>
+          </ul>
+        </div>
+        <div>
+          <h3>焼き菓子・軽食</h3>
+          <ul>
+            <li><div>バスクチーズケーキ</div><span class="price">550円</span></li>
+            <li><div>季節のタルト<span class="note">なくなり次第終了</span></div><span class="price">600円</span></li>
+            <li><div>キャロットケーキ</div><span class="price">500円</span></li>
+            <li><div>厚切りトースト<span class="note">自家製ジャム付き</span></div><span class="price">480円</span></li>
+            <li><div>ドリンクセット<span class="note">焼き菓子+本日のブレンド</span></div><span class="price">1,000円</span></li>
+          </ul>
+        </div>
+      </div>
+      <p class="menu-note">価格は税込です。内容は仕入れ状況により変わります。</p>
+    </div>
+  </section>
+
+  <section class="alt">
+    <div class="wrap story">
+      <div class="sec-title"><small>STORY</small><h2>ご近所の「ほっとする場所」に</h2></div>
+      <p>「つむぎ」という名前には、人と人、日々の暮らしを、ゆるやかにつないでいきたいという思いを込めました。</p>
+      <p>お仕事の合間のひと休みにも、読書や考え事の時間にも。肩の力を抜いて過ごせる場所でありたいと思っています。</p>
+      <p>初めての方も、どうぞお気軽にお立ち寄りください。</p>
+    </div>
+  </section>
+
+  <section id="access">
+    <div class="wrap">
+      <div class="sec-title"><small>ACCESS</small><h2>店舗情報</h2></div>
+      <div class="info">
+        <dl class="shop">
+          <div><dt>店名</dt><dd>珈琲 つむぎ(架空)</dd></div>
+          <div><dt>住所</dt><dd>〒000-0000<br>○○県○○市○○町1-2-3</dd></div>
+          <div><dt>営業時間</dt><dd>8:00〜17:00(L.O. 16:30)</dd></div>
+          <div><dt>定休日</dt><dd>水曜日・第2火曜日</dd></div>
+          <div><dt>席数</dt><dd>カウンター4席 / テーブル6席</dd></div>
+          <div><dt>その他</dt><dd>テイクアウト可 / 豆の販売あり</dd></div>
+        </dl>
+        <div class="map">地図はここに表示します<br>(Googleマップを埋め込み)</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt cta">
+    <div class="wrap">
+      <div class="sec-title"><small>VISIT</small><h2>お待ちしています</h2></div>
+      <p>ご来店のご予約は不要です。お気軽にどうぞ。</p>
+      <a class="btn" href="#access">お店の場所を確認する</a>
+    </div>
+  </section>
+</main>
+
+<footer>© 珈琲 つむぎ(架空のお店・制作見本)</footer>
+</body>
+</html>
